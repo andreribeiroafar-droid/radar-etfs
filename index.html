@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#09151f" />
+  <meta name="description" content="Radar ETFs v3: simulação verificável de entradas virtuais de 250 €, resultados após 7 e 30 dias e gestão de risco." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="stylesheet" href="style.css?v=3" />
+  <title>Radar ETFs | Gestão de risco</title>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-icon" aria-hidden="true">◈</span> <span>Radar<span class="brand-accent">ETF</span></span></div>
+  <div class="pill" id="data-pill"><span class="dot dim"></span><span>Dados a verificar</span></div>
+</header>
+<main class="container">
+  <section class="hero">
+    <div class="eyebrow">O TEU CENTRO DE INVESTIMENTOS</div>
+    <h1>Decidir com <span>regras.</span><br>Não com medo.</h1>
+    <p>Três ETFs. Mercados globais. Sinais verificáveis e quatro entradas de 250 € em <strong>simulação</strong>. Não há garantias de lucro nem execução de ordens reais.</p>
+    <div class="hero-actions"><a href="#carteira" class="btn primary">Ver carteira <span>↗</span></a><a href="#sinais" class="btn secondary">Analisar sinais</a></div>
+  </section>
+  <div id="notice" role="status"></div>
+  <section class="kpi-grid" aria-label="Resumo">
+    <article class="kpi"><div class="kpi-label">Carteira de referência</div><div class="kpi-number" id="total-value">—</div><div class="kpi-foot" id="valuation-date">A aguardar importação privada</div></article>
+    <article class="kpi"><div class="kpi-label">Nasdaq + S&amp;P 500</div><div class="kpi-number" id="us-weight">—</div><div class="kpi-foot">Exposição direta a dois índices EUA</div></article>
+    <article class="kpi kpi-accent"><div class="kpi-label">Orçamento experimental</div><div class="kpi-number">1.000 €</div><div class="kpi-foot">4 entradas de 250 € · só virtual</div></article>
+  </section>
+  <section id="carteira" class="section">
+    <div class="section-title"><div><div class="eyebrow">01 / PATRIMÓNIO INVESTIDO</div><h2>A tua carteira</h2></div><div class="portfolio-actions"><button class="link-button" id="import-portfolio">Importar JSON privado ↗</button><button class="link-button" id="edit-portfolio">Editar valores ↗</button><input id="portfolio-file" type="file" accept="application/json,.json" hidden></div></div>
+    <p class="muted">Importa o ficheiro privado com os teus valores ou introduz os montantes manualmente. Só ficam guardados neste dispositivo e não são enviados ao GitHub. Os ETFs estão agregados por fundo.</p>
+    <div class="allocation-bar" id="allocation-bar" aria-label="Distribuição dos três ETFs"></div>
+    <div class="allocation-legend" id="allocation-legend"></div>
+    <div class="holdings" id="holdings"></div>
+    <div class="info-panel"><span class="info-icon">!</span><span><b>Atenção à concentração:</b> o Nasdaq-100 e o S&amp;P 500 partilham várias megaempresas. O MSCI World também contém ações americanas. Três fundos não equivalem a três riscos independentes.</span></div>
+  </section>
+  <section id="sinais" class="section">
+    <div class="section-title"><div><div class="eyebrow">02 / REGIME DE MERCADO</div><h2>Sinais, não palpites</h2></div><button class="link-button" id="refresh">Atualizar ↻</button></div>
+    <div class="market-banner" id="market-status">A verificar o histórico...</div>
+    <p class="muted">Os sinais utilizam o histórico de fechos dos <b>ETFs exatos em euros</b>, não apenas o comportamento de índices americanos. Só aparecem com histórico suficiente, com fonte e data identificadas.</p>
+    <div class="signal-grid" id="signals"></div>
+    <div class="section-title micro-title"><div><div class="eyebrow">CONTEXTO INTERNACIONAL</div><h3>Mercados relacionados</h3></div></div>
+    <p class="muted">Nasdaq-100, S&amp;P 500, VIX, Europa, Japão, taxas dos EUA, euro/dólar, petróleo e ouro. São verificações contextuais, não previsões infalíveis. Indicadores indisponíveis ficam assinalados.</p>
+    <div class="macro-grid" id="macro-grid"></div>
+    <p class="muted" id="macro-status">A verificar o contexto...</p>
+    <details class="rules"><summary>Conhecer as regras dos sinais</summary><div class="rules-body"><p><b>Vermelho:</b> queda de 3% ou mais num dia; 6% ou mais em cinco sessões; ou preço e média de 50 sessões abaixo da média de 200 sessões. Indica risco elevado, não venda obrigatória.</p><p><b>Amarelo:</b> preço abaixo da média de 200 sessões, ou recuo de 10% face ao máximo das últimas 60 sessões, ou perda diária de pelo menos 2%.</p><p><b>Verde:</b> preço acima da média de 200 sessões, média de 50 acima/igual à de 200 e sem alertas de queda. Uma correção entre 3% e 8% face ao máximo de 60 sessões, seguida de dois fechos consecutivos de recuperação, torna-se apenas <i>candidata a análise de reforço</i>.</p><p><b>Sem sinal:</b> menos de 200 sessões de histórico, preço desatualizado ou fonte indisponível. Nunca fabricamos recomendações.</p><p>A simulação exige ainda VIX inferior a 30, S&amp;P 500 e Nasdaq-100 acima da sua média de 200 sessões, ausência de choque diário relevante e uma concentração projetada máxima de 45% por ETF. Se faltam dados, não compra. Estas regras são hipóteses a testar — não evitam gaps, perdas ou falsos sinais.</p></div></details>
+  </section>
+  <section id="plano" class="section">
+    <div class="section-title"><div><div class="eyebrow">03 / MODO PAPEL</div><h2>Experiência de 1.000 €</h2></div><div class="pill outline">SEM ORDENS REAIS</div></div>
+    <p class="muted">Podes aceitar até <b>quatro sinais de 250 € virtuais</b>. Cada ordem fictícia fica pendente e só é executada ao <b>primeiro fecho posterior ao dia em que aceitaste o sinal</b> (nunca ao fecho que já conhecíamos). A app mede o resultado <b>após 1 sessão, 7 dias e 30 dias</b>, incluindo comissões hipotéticas de entrada e saída. Uma semana é apenas uma observação, não prova de fiabilidade.</p>
+    <div class="experiment-grid"><div class="experiment-number"><span>Orçamento livre</span><strong id="paper-cash">—</strong><small>O restante está reservado ou investido virtualmente</small></div><div class="experiment-number"><span>Valor virtual estimado</span><strong id="paper-value">—</strong><small id="paper-pl">Aguarda cotações do mercado</small></div></div>
+    <p class="muted" id="tranches-remaining">4 de 4 entradas de 250 € ainda disponíveis</p>
+    <div class="form-card"><div class="field-row"><label for="etf-select">ETF para testar</label><select id="etf-select"><option value="nasdaq">EQQQ Nasdaq-100 Acc</option><option value="sp500">S&amp;P 500 EUR Hedged Acc</option><option value="world">MSCI World Acc</option></select></div><div class="field-row"><label for="buy-amount">Montante (€)</label><input id="buy-amount" type="number" value="250" readonly aria-label="250 euros fixos por entrada"></div><button class="btn primary full" id="paper-buy">Aceitar sinal · simular 250 €</button><p id="paper-hint" class="form-hint"></p></div>
+    <div class="week-summary" id="week-summary"><div class="empty-state">As análises de 7 dias aparecem depois de haver compras virtuais executadas e cotações posteriores.</div></div>
+    <div class="ledger-header"><h3>Experiências em acompanhamento</h3><span class="muted">Resultados por entrada</span></div>
+    <div id="positions"></div>
+    <div class="ledger-header"><h3>Diário de decisões</h3><button class="link-button" id="export-paper">Exportar histórico</button><button class="link-button" id="import-paper">Importar histórico</button><button class="link-button danger-link" id="clear-paper">Reiniciar tudo</button><input id="paper-file" type="file" accept=".json,application/json" hidden></div><div id="ledger" class="ledger"></div>
+    <div class="info-panel">O dinheiro virtual não está ligado às corretoras. A app assume 0,20% de custos na entrada e 0,20% na venda hipotética. A execução ao fecho seguinte é apenas um modelo: na realidade, há spread, derrapagem de preço, impostos e risco de indisponibilidade. Os resultados ficam neste dispositivo: exporta um backup para não os perderes. Não apagues os dados do Safari antes da avaliação.</div>
+  </section>
+  <section id="teste" class="section">
+    <div class="section-title"><div><div class="eyebrow">04 / PROVA DE CONCEITO</div><h2>Testar antes de confiar</h2></div></div>
+    <p class="muted">Compara 1.000 € em duas estratégias: <b>manter os três ETFs</b> ou <b>reduzir exposição quando o risco sobe</b>. Inclui custo simulado de 0,20% por volume transacionado, análise de sensibilidade com 0,50%, teste do último quarto do histórico separado dos restantes e períodos de tensão quando existirem cotações. Os dados são reais apenas depois de um feed histórico válido ser publicado; não são gerados retornos fictícios.</p>
+    <div id="backtest" class="backtest"><div class="empty-state">A aguardar histórico válido. Não são apresentados resultados inventados.</div></div>
+    <details class="rules"><summary>Como é calculado o teste</summary><div class="rules-body"><p><b>Manter:</b> compra inicial nas proporções atuais, sem rebalanceamentos posteriores.</p><p><b>Adaptativo:</b> mantém 100% da exposição planeada em regime verde; 50% em amarelo; 0% em vermelho. O dinheiro restante fica em caixa sem rendimento. Cada decisão utiliza o sinal do fecho anterior; a simulação negocia ao fecho seguinte com custos hipotéticos. Não utiliza o fecho do próprio dia para gerar o sinal aplicado nesse dia. Cada mudança de posição tem custo ilustrativo de 0,20% do volume negociado.</p><p>São calculados valor final, retorno, volatilidade anualizada, perda máxima de pico a vale e número de ajustes. Um único histórico favorável não prova que a estratégia vá funcionar no futuro: devemos testar diferentes janelas e períodos fora da amostra antes de qualquer decisão com dinheiro real.</p></div></details>
+  </section>
+  <section id="fontes" class="section compact"><div class="section-title"><div><div class="eyebrow">05 / TRANSPARÊNCIA</div><h2>Fontes e limites</h2></div></div>
+    <div class="source-grid"><div class="source-item"><b>EQAC.MI</b><span>Invesco EQQQ Nasdaq-100 Acc · IE00BFZXGZ54 · Itália · EUR</span></div><div class="source-item"><b>IBCF.DE</b><span>iShares S&amp;P 500 EUR Hedged Acc · IE00B3ZW0K18 · Xetra · EUR</span></div><div class="source-item"><b>EUNL.DE</b><span>iShares Core MSCI World Acc · IE00B4L5Y983 · Xetra · EUR</span></div></div>
+    <p class="muted">A importação programada obtém dados históricos ajustados através da biblioteca comunitária yfinance (fonte não oficial e sujeita a falhas). A aplicação não lê contas bancárias, não envia ordens, não guarda credenciais e conserva as simulações apenas neste navegador. Antes de investir, valida sempre preço, ISIN, spread e custos na tua corretora.</p>
+  </section>
+  <footer>RadarETF v3.0 · Ferramenta pessoal de análise e aprendizagem. <a href="#carteira">Voltar ao início ↑</a></footer>
+</main>
+<nav class="bottom-nav" aria-label="Navegação"><a href="#carteira"><span>◈</span>Carteira</a><a href="#sinais"><span>◉</span>Sinais</a><a href="#plano"><span>◎</span>1.000 €</a><a href="#teste"><span>▤</span>Testes</a></nav>
+<dialog id="portfolio-dialog"><form method="dialog" id="portfolio-form"><div class="modal-header"><h2>Atualizar carteira</h2><button type="button" class="close" id="close-dialog" aria-label="Fechar">×</button></div><p>Introduz o valor, em euros, de cada ETF por corretora. A app guarda estes montantes só no teu dispositivo.</p><label>TR · Nasdaq-100 (€)<input id="p-tr-nasdaq" type="number" min="0" step="0.01" required></label><label>DEGIRO · Nasdaq-100 (€)<input id="p-deg-nasdaq" type="number" min="0" step="0.01" required></label><label>TR · S&amp;P 500 (€)<input id="p-tr-sp500" type="number" min="0" step="0.01" required></label><label>DEGIRO · S&amp;P 500 (€)<input id="p-deg-sp500" type="number" min="0" step="0.01" required></label><label>DEGIRO · MSCI World (€)<input id="p-deg-world" type="number" min="0" step="0.01" required></label><label>Data dos valores<input id="p-date" type="date" required></label><button class="btn primary full" type="submit">Guardar alterações</button></form></dialog>
+<script src="engine.js?v=3"></script><script src="app.js?v=3"></script>
+</body>
+</html>
