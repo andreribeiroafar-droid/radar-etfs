@@ -56,3 +56,9 @@
 #fx-positions .horizon-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 #fx-positions .result-wait{font-size:12px}
 @media(max-width:750px){#fx-positions .horizon-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* v4.2 Forex paper autopilot: read-only public trial log */
+.auto-log {display:grid;gap:10px;margin:16px 0 20px}
+.auto-entry,.auto-log-item {padding:14px 18px;border:1px solid var(--line, #29404d);background:#12222e;border-radius:12px}
+.auto-entry p,.auto-log-item p {margin:6px 0 0;line-height:1.55}
+.auto-log-item small{color:#76dabb;font-weight:700}

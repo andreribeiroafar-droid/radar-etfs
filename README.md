@@ -1,3 +1,36 @@
+# Radar ETFs v4.2 — Forex Autopilot totalmente virtual
+
+O Forex Autopilot é um **sistema automático de simulações** baseado em regras determinísticas. **Não é o ChatGPT a operar nem a observar mercados em tempo real.** Não envia ordens nem tem acesso a bancos/corretoras. Não promete lucros e pode ter perdas.
+
+## Atualizar a v4.1 existente
+
+1. Faz **Exportar histórico** do simulador de ETFs e **Exportar histórico Forex** na aplicação atual; guarda cópias privadas (nunca no GitHub).
+2. Carrega apenas os ficheiros da atualização `Radar_ETFs_v4_2_AUTOPILOT_ATUALIZACAO.zip` na raiz do mesmo repositório, mantendo a pasta `scripts`. Não substituas `data/market.json`, não publiques o JSON da tua carteira nem os diários privados.
+3. É **obrigatório atualizar** no GitHub o ficheiro oculto `.github/workflows/pages.yml`. Abre-o, clica no lápis para editar e substitui pelo conteúdo do ficheiro entregue à parte `Radar_ETFs_v4_2_pages.yml.txt`. O novo workflow passa a executar `scripts/forex_autopilot.py` e guardar **apenas operações fictícias** no ficheiro público `data/forex_autopilot.json`.
+4. Faz commit e confirma a execução **verde** em GitHub **Actions**. Em caso de falha, inspeciona os logs. Se surgir `Permission denied` ao fazer `git push`, confirma em **Settings → Actions → General → Workflow permissions** que os workflows podem gravar no repositório; o código solicita `contents: write` mas políticas de conta podem restringi-lo.
+5. Abre a app atualizada no mesmo browser e confirma **Forex Autopilot**. Na primeira execução o estado é inicializado com 1.000 € virtuais: **não são criadas compras históricas fictícias**. Nas sessões seguintes o algoritmo pode detetar sinais, mas pode passar longos períodos sem fazer operações. A verificação agendada é diária, não contínua.
+
+## Controlo e regras
+
+- Caixa virtual independente de **1.000 €**, no máximo **quatro entradas de 250 €** ao longo da experiência e no máximo **uma posição aberta** de cada vez.
+- Posições apenas **financiadas em moeda estrangeira** (comprar USD/GBP/JPY com EUR). Sem margem, alavancagem, CFD, shorting, derivados ou execução real.
+- Fechos não oficiais Yahoo/yfinance, com rejeição de dados ausentes, desatualizados, anómalos e fins de semana. Exige referência de volatilidade (VIX) abaixo de 30 para novas compras. A estratégia procura tendência cambial após recuos do euro, mas estes filtros não foram demonstrados lucrativos.
+- Sinal do fecho de um dia gera **ordem virtual pendente**, executada **apenas no próximo fecho elegível observado**. Stop teórico de -1,5% líquido de custos, objetivo +2,5% ou limite de dez sessões **só agenda saída no próximo fecho**; a perda efetiva na simulação pode ultrapassar o limite.
+- Custo ilustrativo de 0,15% ao converter EUR → moeda e 0,15% na volta. Os spreads e comissões reais podem ser maiores. Não inclui impostos nem juros.
+- O estado fica em `data/forex_autopilot.json` (repositório **público**, dados **fictícios apenas**). A tua carteira pessoal e os registos manuais permanecem no armazenamento privado do navegador.
+- O **primeiro processamento nunca compra retroativamente**; o diário começa com um ponto de partida e regista decisões posteriores. Um workflow verde verifica a execução do código e a publicação, **não** a precisão nem a rentabilidade do algoritmo.
+
+## Testes locais do motor
+
+```bash
+python -m unittest discover -s tests -v
+node --check autopilot.js
+```
+
+Os testes usam preços sintéticos para verificar cálculos e ausência de execução retroativa, não demonstram resultados financeiros positivos.
+
+---
+
 # Radar ETFs 4.0 — Simulações livres, Trading Lab e estudo de eventos
 
 - **Modo automático:** exige os filtros de risco já existentes.
