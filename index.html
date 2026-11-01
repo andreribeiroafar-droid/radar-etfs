@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#09151f" />
-  <meta name="description" content="Radar ETFs v4: simulação verificável de entradas virtuais de 250 €, resultados após 7 e 30 dias e gestão de risco." />
+  <meta name="description" content="Radar ETFs v4.1: simulação de ETFs e Forex sem alavancagem, com resultados verificáveis." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=41" />
   <title>Radar ETFs | Gestão de risco</title>
 </head>
 <body>
@@ -67,25 +67,42 @@
     <div class="macro-grid" id="swing-cards"><div class="empty-state">A aguardar histórico...</div></div>
     <div class="info-panel"><b>Exemplo de risco por entrada:</b> 250 € com stop teórico de 2% equivale a 5 € de movimento adverso antes de comissões. Com 0,20% por lado, o custo ilustrativo total ronda 1 €. Os limites não estão garantidos; podem ser ultrapassados por gaps e derrapagem.</div>
   </section>
+  <section id="forex" class="section">
+    <div class="section-title"><div><div class="eyebrow">05 / LABORATÓRIO CAMBIAL</div><h2>Forex Lab</h2></div><div class="pill outline">100% DEMO · SEM ALAVANCAGEM</div></div>
+    <p class="muted">Simulação de <b>conversões de euros para USD, GBP ou JPY</b>, não CFD nem posições alavancadas. Só usa fechos diários (não é trading ao segundo). Uma descida de EUR/USD, por exemplo, aumenta o valor em euros dos dólares comprados; uma subida diminui-o. <b>Não há sinal automático de compra</b> neste módulo.</p>
+    <div class="market-banner" id="fx-status">À espera de cotações cambiais verificáveis...</div>
+    <div id="fx-cards" class="macro-grid"></div>
+    <div class="experiment-grid"><div class="experiment-number"><span>Caixa Forex disponível (independente dos ETFs)</span><strong id="fx-cash">1.000,00 €</strong><small>4 experiências de 250 €</small></div><div class="experiment-number"><span>Valor virtual estimado</span><strong id="fx-value">1.000,00 €</strong><small id="fx-pl">Sem posições</small></div></div>
+    <div class="form-card">
+      <div class="field-row"><label for="fx-pair">Moeda a comprar com EUR</label><select id="fx-pair"><option value="eurusd">Dólar americano (EUR/USD)</option><option value="eurgbp">Libra esterlina (EUR/GBP)</option><option value="eurjpy">Iene japonês (EUR/JPY)</option></select></div>
+      <div class="field-row"><label for="fx-size">Montante EUR (virtual)</label><input id="fx-size" value="250" readonly aria-label="Montante fixo de 250 euros virtuais"></div>
+      <button class="btn primary full" id="fx-order" disabled>Registar conversão fictícia de 250 €</button>
+      <p class="form-hint" id="fx-hint">O botão só é ativado com dados históricos e fecho recente.</p>
+    </div>
+    <div class="ledger-header"><h3>Experiências cambiais</h3><div><button class="link-button" id="fx-export">Exportar histórico Forex</button><button class="link-button" id="fx-import">Importar histórico Forex</button><input id="fx-file" type="file" hidden accept=".json,application/json"></div></div>
+    <div id="fx-positions"></div>
+    <details class="rules"><summary>Como calculamos os resultados e os custos Forex</summary><div class="rules-body"><p>250 € virtuais convertem-se na moeda selecionada ao <b>primeiro fecho posterior ao registo</b>, descontando um custo ilustrativo de <b>0,15% na entrada</b>. Para avaliar a saída hipotética, reconvertemos a moeda em EUR ao primeiro fecho elegível após <b>7, 30 e 90 dias</b> e descontamos <b>0,15% na saída</b>. A taxa real de um banco/corretora pode ser diferente e inclui spread variável, eventuais taxas e custos que estes números não capturam.</p><p>A conta Forex é <b>uma sandbox independente de 1.000 € virtuais</b>: não aumenta nem reduz o orçamento ETF e não usa a carteira real. Todas as conversões são manuais; o sistema não garante ganhos, não faz vendas automáticas e não observa cotação intradiária. É um teste de conversão cambial sem margem, não uma estratégia validada de Forex profissional.</p></div></details>
+    <div class="info-panel"><b>Risco real:</b> moedas podem variar desfavoravelmente; spreads podem apagar pequenos ganhos. CFD/Forex alavancado é outro produto, muito mais arriscado, e não está incluído. Nunca publiques o JSON do diário Forex no GitHub.</div>
+  </section>
   <section id="teste" class="section">
-    <div class="section-title"><div><div class="eyebrow">04 / PROVA DE CONCEITO</div><h2>Testar antes de confiar</h2></div></div>
+    <div class="section-title"><div><div class="eyebrow">06 / PROVA DE CONCEITO</div><h2>Testar antes de confiar</h2></div></div>
     <p class="muted">Compara 1.000 € em duas estratégias: <b>manter os três ETFs</b> ou <b>reduzir exposição quando o risco sobe</b>. Inclui custo simulado de 0,20% por volume transacionado, análise de sensibilidade com 0,50%, teste do último quarto do histórico separado dos restantes e períodos de tensão quando existirem cotações. Os dados são cotações reportadas por fonte não oficial, apenas depois de um feed histórico válido ser publicado; não são gerados retornos fictícios.</p>
     <div id="backtest" class="backtest"><div class="empty-state">A aguardar histórico válido. Não são apresentados resultados inventados.</div></div>
     <details class="rules"><summary>Como é calculado o teste</summary><div class="rules-body"><p><b>Manter:</b> compra inicial nas proporções atuais, sem rebalanceamentos posteriores.</p><p><b>Adaptativo:</b> mantém 100% da exposição planeada em regime verde; 50% em amarelo; 0% em vermelho. O dinheiro restante fica em caixa sem rendimento. Cada decisão utiliza o sinal do fecho anterior; a simulação negocia ao fecho seguinte com custos hipotéticos. Não utiliza o fecho do próprio dia para gerar o sinal aplicado nesse dia. Cada mudança de posição tem custo ilustrativo de 0,20% do volume negociado.</p><p>São calculados valor final, retorno, volatilidade anualizada, perda máxima de pico a vale e número de ajustes. Um único histórico favorável não prova que a estratégia vá funcionar no futuro: devemos testar diferentes janelas e períodos fora da amostra antes de qualquer decisão com dinheiro real.</p></div></details>
   </section>
   <section id="eventos" class="section">
-    <div class="section-title"><div><div class="eyebrow">06 / ESTUDO DE ENTRADAS</div><h2>Os sinais acrescentam valor?</h2></div></div>
+    <div class="section-title"><div><div class="eyebrow">07 / ESTUDO DE ENTRADAS</div><h2>Os sinais acrescentam valor?</h2></div></div>
     <p class="muted">Estudo histórico de eventos: sinal técnico no fecho, entrada ao fecho seguinte, venda hipotética ao primeiro fecho após 7, 30 ou 90 dias. Compara a regra técnica de observação com uma compra mensal simples, sem impostos, com custos de 0,20% de cada lado. <b>Não é o backtest completo dos filtros globais.</b> O período final é mostrado separadamente, mas os parâmetros não foram calibrados fora dele: não constitui prova independente.</p>
     <div id="entry-study" class="backtest"><div class="empty-state">A aguardar dados históricos...</div></div>
   </section>
-  <section id="fontes" class="section compact"><div class="section-title"><div><div class="eyebrow">07 / TRANSPARÊNCIA</div><h2>Fontes e limites</h2></div></div>
+  <section id="fontes" class="section compact"><div class="section-title"><div><div class="eyebrow">08 / TRANSPARÊNCIA</div><h2>Fontes e limites</h2></div></div>
     <div class="source-grid"><div class="source-item"><b>EQAC.MI</b><span>Invesco EQQQ Nasdaq-100 Acc · IE00BFZXGZ54 · Itália · EUR</span></div><div class="source-item"><b>IBCF.DE</b><span>iShares S&amp;P 500 EUR Hedged Acc · IE00B3ZW0K18 · Xetra · EUR</span></div><div class="source-item"><b>EUNL.DE</b><span>iShares Core MSCI World Acc · IE00B4L5Y983 · Xetra · EUR</span></div></div>
     <p class="muted">A importação programada obtém dados históricos ajustados através da biblioteca comunitária yfinance (fonte não oficial e sujeita a falhas). A aplicação não lê contas bancárias, não envia ordens, não guarda credenciais e conserva as simulações apenas neste navegador. Antes de investir, valida sempre preço, ISIN, spread e custos na tua corretora.</p>
   </section>
-  <footer>RadarETF v4.0 · Ferramenta pessoal de análise e aprendizagem. <a href="#carteira">Voltar ao início ↑</a></footer>
+  <footer>RadarETF v4.1 · Ferramenta pessoal de análise e aprendizagem. <a href="#carteira">Voltar ao início ↑</a></footer>
 </main>
-<nav class="bottom-nav" aria-label="Navegação"><a href="#carteira"><span>◈</span>Carteira</a><a href="#sinais"><span>◉</span>Sinais</a><a href="#plano"><span>◎</span>1.000 €</a><a href="#trading"><span>↗</span>Trading</a><a href="#teste"><span>▤</span>Testes</a></nav>
+<nav class="bottom-nav" aria-label="Navegação"><a href="#carteira"><span>◈</span>Carteira</a><a href="#sinais"><span>◉</span>Sinais</a><a href="#plano"><span>◎</span>1.000 €</a><a href="#trading"><span>↗</span>Trading</a><a href="#forex"><span>⇄</span>Forex</a><a href="#teste"><span>▤</span>Testes</a></nav>
 <dialog id="portfolio-dialog"><form method="dialog" id="portfolio-form"><div class="modal-header"><h2>Atualizar carteira</h2><button type="button" class="close" id="close-dialog" aria-label="Fechar">×</button></div><p>Introduz o valor, em euros, de cada ETF por corretora. A app guarda estes montantes só no teu dispositivo.</p><label>TR · Nasdaq-100 (€)<input id="p-tr-nasdaq" type="number" min="0" step="0.01" required></label><label>DEGIRO · Nasdaq-100 (€)<input id="p-deg-nasdaq" type="number" min="0" step="0.01" required></label><label>TR · S&amp;P 500 (€)<input id="p-tr-sp500" type="number" min="0" step="0.01" required></label><label>DEGIRO · S&amp;P 500 (€)<input id="p-deg-sp500" type="number" min="0" step="0.01" required></label><label>DEGIRO · MSCI World (€)<input id="p-deg-world" type="number" min="0" step="0.01" required></label><label>Data dos valores<input id="p-date" type="date" required></label><button class="btn primary full" type="submit">Guardar alterações</button></form></dialog>
-<script src="engine.js?v=4"></script><script src="app.js?v=4"></script>
+<script src="engine.js?v=4"></script><script src="app.js?v=4"></script><script src="forex.js?v=41"></script>
 </body>
 </html>

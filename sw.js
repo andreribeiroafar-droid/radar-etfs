@@ -1,5 +1,5 @@
-const CACHE='radaretf-v4-20261101';
-const SHELL=['./','./index.html','./style.css','./engine.js','./app.js','./assets/icon-192.png'];
+const CACHE='radaretf-v41-20261101';
+const SHELL=['./','./index.html','./style.css','./engine.js','./app.js','./forex.js','./assets/icon-192.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
 self.addEventListener('fetch',e=>{

@@ -105,3 +105,19 @@ Os testes `test_engine.cjs` utilizam **dados sintéticos apenas para testar o c�
 - [iShares Core MSCI World — emitente](https://www.ishares.com/uk/individual/en/products/251882/ISHARES_MSCI_WORLD_UCITS_ETF)
 
 **Não existe taxa de acerto quase perfeita**. Acertar na cor do regime não equivale a gerar retorno líquido superior ou a conseguir antecipar um crash. Este protótipo ajuda a tomar decisões coerentes e a **evitar operações quando a evidência é insuficiente**; não substitui aconselhamento financeiro personalizado, verificação fiscal nem gestão da reserva do curso de piloto.
+
+---
+
+# Radar ETFs 4.1 — Forex Lab independente
+
+**Esta atualização é complementar à v4.0**, sem alterar a carteira importada nem os registos existentes dos ETFs. Inclui um laboratório cambial para EUR/USD, EUR/GBP e EUR/JPY (pares em que **1 EUR equivale a N unidades de outra moeda**).
+
+- Uma caixa **virtual e independente** de 1.000 EUR, não agregada nem descontada do orçamento experimental de ETFs. Até quatro conversões fictícias de 250 EUR.
+- Simula a compra de dólares, libras ou ienes com euros. Não é especulação longa/curta com margem, CFDs nem leveraged Forex; não implica execução de ordens. Não se pode vender uma moeda que não se possui.
+- A conversão é efetivada **no primeiro fecho elegível posterior ao registo**, nunca a preços anteriores conhecidos; usa taxas indicativas (Yahoo/yfinance). Resultados de saída a 1 sessão, 7, 30 e 90 dias, usando a reconversão a euros ao primeiro fecho elegível em cada prazo.
+- Custos ilustrativos 0,15% por conversão na compra e na venda; spreads reais, diferenças face ao câmbio de mercado, custos de fim de semana, custos bancários, arredondamentos e possíveis impostos **não estão cobertos**. O P&L representa um exercício cambial, não a rentabilidade líquida garantida de um serviço real.
+- Não há sinais de compra Forex validados nem alertas intradiários. Um painel técnico descritivo mostra cotação e média de 20 dias, mas não produz recomendações.
+- Dados FX são **opcionais** no `data/market.json`. O novo `scripts/update_market.py` acrescenta os três pares sem causar falha do projeto se uma fonte cambial não estiver disponível. Enquanto os três pares não estiverem atualizados, a app assinala indisponibilidade e bloqueia simulações nesse par.
+- JSON do histórico Forex é guardado no `localStorage` do navegador em `radar-forex-trials-v1`. Exportação/importação em separado; **nunca publicar backups** no GitHub.
+
+**Atualização no GitHub:** substituir `index.html`, `style.css`, `sw.js`, `README.md`, carregar o novo `forex.js` na raiz e substituir `scripts/update_market.py` **dentro de `scripts`**. Não substituir `data/market.json`, `app.js`, `engine.js`, `.github/workflows/pages.yml`, ficheiros de carteira ou diário. Fazer Commit e confirmar GitHub Actions verde. `data/market.json` só vai incluir FX depois do job de atualização de mercado seguinte (ou da sua execução manual).

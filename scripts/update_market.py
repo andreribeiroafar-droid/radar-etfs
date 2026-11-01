@@ -25,6 +25,12 @@ CONTEXT = {
     "japan": "^N225", "us10y": "^TNX", "eurusd": "EURUSD=X",
     "oil": "CL=F", "gold": "GC=F",
 }
+# Rates expressed as units of foreign currency for one EUR.
+FOREX = {
+    "eurusd": "EURUSD=X",
+    "eurgbp": "EURGBP=X",
+    "eurjpy": "EURJPY=X",
+}
 
 def load_prices(ticker, minimum=0):
     frame = ticker.history(period="10y", interval="1d", auto_adjust=True,
@@ -43,7 +49,7 @@ def load_prices(ticker, minimum=0):
 
 def get_data():
     today = dt.datetime.now(dt.timezone.utc).date()
-    funds, context, latest_dates, notes = {}, {}, [], []
+    funds, context, forex, latest_dates, notes = {}, {}, {}, [], []
     for key, (symbol, isin, ccy) in FUNDS.items():
         print(f"A validar ETF {key} {symbol} ISIN {isin}", flush=True)
         obj = yf.Ticker(symbol)
@@ -75,10 +81,24 @@ def get_data():
             msg = f"{key}/{symbol} indisponível: {ex}"
             notes.append(msg)
             print("NOTA: " + msg, file=sys.stderr)
-    return {"status": "ok", "schema": 2,
+    # Forex is optional: missing/unverified pairs must never create synthetic prices.
+    for key, symbol in FOREX.items():
+        try:
+            print(f"FX de referência {symbol}", flush=True)
+            prices = load_prices(yf.Ticker(symbol), minimum=100)
+            last = dt.date.fromisoformat(prices[-1]["date"])
+            if last > today or (today - last).days > 7:
+                raise ValueError(f"FX desatualizado: {last}")
+            forex[key] = {"ticker": symbol, "base": "EUR", "last_date": prices[-1]["date"],
+                          "prices": prices}
+        except Exception as ex:
+            msg = f"forex/{key}/{symbol} indisponível: {ex}"
+            notes.append(msg)
+            print("NOTA: " + msg, file=sys.stderr)
+    return {"status": "ok", "schema": 3,
             "source": "Yahoo Finance via yfinance (não oficial; adjusted daily closes)",
             "as_of": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-            "funds": funds, "context": context, "source_notes": notes}
+            "funds": funds, "context": context, "forex": forex, "source_notes": notes}
 
 if __name__ == "__main__":
     try:

@@ -51,3 +51,8 @@
 .swing-card{min-height:225px}.swing-card p{font-size:12px;line-height:1.5;flex:1}.swing-card button{font-size:12px;padding:10px;margin-top:auto}.swing-card button:disabled{opacity:.35;cursor:not-allowed}
 .study-card{border:1px solid var(--line);border-radius:16px;padding:19px;background:var(--surface);margin-bottom:15px;overflow-x:auto}.study-card h3{margin:0;font-size:18px}.study-table{width:100%;border-collapse:collapse;text-align:left;min-width:560px;font-size:12px}.study-table th,.study-table td{padding:12px 8px;border-bottom:1px solid var(--line)}.study-table th{color:var(--muted)}.horizon-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:750px){.horizon-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bottom-nav a{min-width:48px}}
+/* v4.1 Forex Lab — independent, funded 1x currency-conversion demo */
+.fx-card{min-height:175px}.fx-card p{font-size:12px;flex:1}.fx-card strong{font-variant-numeric:tabular-nums}
+#fx-positions .horizon-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+#fx-positions .result-wait{font-size:12px}
+@media(max-width:750px){#fx-positions .horizon-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
