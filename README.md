@@ -1,3 +1,18 @@
+# Radar ETFs 4.0 — Simulações livres, Trading Lab e estudo de eventos
+
+- **Modo automático:** exige os filtros de risco já existentes.
+- **Modo compra livre:** regista uma entrada de 250 € mesmo sem sinal automático, separada nas estatísticas.
+- **Modo swing:** investigação por fechos diários (20 sessões de tendência; VIX/índices como contexto) e entrada virtual livre; não disponibiliza cotações intradiárias, execução de stops, nem ordens reais. Stop 2%/alvo 4% são hipóteses ilustrativas de risco, sem ordens automáticas.
+- **4 entradas de 250 € num orçamento ÚNICO de 1.000 €** (todos os modos partilham o mesmo orçamento). Não utiliza os montantes da carteira real.
+- Acompanhamento de **1 sessão, 7, 30 e 90 dias de calendário**, preço de entrada ao primeiro fecho após o registo, custos 0,20% por lado hipotéticos.
+- **Estudo de eventos históricos:** compara candidatos técnicos com compra no início de cada mês, entry sempre ao fecho seguinte, taxas em ambos os cenários; mostra um subconjunto dos últimos 25%. Não reconstitui os filtros macro (históricos), não é comparação emparelhada nem prova de capacidade preditiva.
+- Persistência local conserva a chave v3 para NÃO apagar as operações já registadas. Exportação usa esquema `radar-etf-trials-v4`, importador aceita backups v3 e v4. Dados de carteira permanecem exclusivamente locais.
+- **Sem trading em tempo real**: a atualização Github Actions é EOD, em horários de bolsas distintas. Para intraday seria necessário um feed de dados/licença e agendamento de monitorização separados, e não há garantia de execução ou retorno.
+
+Para atualizar GitHub, substitui ficheiros da raiz e assets/data/scripts conforme necessário. **Não publiques** ficheiros da carteira privada nem do diário exportado. O workflow de publicação continua em `.github/workflows/pages.yml`.
+
+---
+
 # Radar ETFs v3 — diário de simulações de 250 €
 
 **Novidade:** quando surgir um sinal validado, usa **Aceitar sinal · simular 250 €**. Não são realizadas compras reais.

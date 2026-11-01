@@ -1,4 +1,4 @@
-/* Radar ETF v2 — deterministic research engine, zero broker connections. */
+/* Radar ETF v4 — deterministic research engine, zero broker connections. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;root.RadarEngine=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
 'use strict';
 const FUNDS={
@@ -152,10 +152,57 @@ function paperSummary(trials,marketData,feeRate=.002){
    items.push({trial,quote,current,
      nextSession:trialOutcome(trial,rows,'session',feeRate),
      week:trialOutcome(trial,rows,7,feeRate),
-     month:trialOutcome(trial,rows,30,feeRate)});
+     month:trialOutcome(trial,rows,30,feeRate),quarter:trialOutcome(trial,rows,90,feeRate)});
  }
  return {items,available,reserved,markToMarket,value:unknown?null:available+reserved+markToMarket,unknown};
 }
 
-return {FUNDS,CONTEXT,DEFAULT_PORTFOLIO,clone,totalByFund,normalize,pct,signalAt,signal,isFresh,contextSummary,guardCandidate,runBacktest,maxDrawdown,calendarPlus,executeTrial,trialOutcome,paperSummary};
+/* v4: historical event-study, separate from the defensive regime backtest.
+   Decisions at close i, entry at close i+1, results on first close >= calendar horizon.
+   Candidate rule only: macro guards and portfolio concentration intentionally NOT backtested. */
+function entryStudy(history,feeRate=.002){
+ const horizons=[7,30,90],funds={};let total=0;
+ for(const id of Object.keys(FUNDS)){
+  const rows=normalize(history?.[id]?.prices||[]),candidates=[],monthly=[];
+  if(rows.length<350){funds[id]={ok:false,reason:'Histórico inferior a 350 fechos.'};continue;}
+  const dateMap=new Map(rows.map((r,i)=>[r.date,i]));
+  const valueAt=(i,days)=>{const target=calendarPlus(rows[i].date,days);const found=rows.find((r,j)=>j>i&&r.date>=target);return found||null;};
+  const out=(i)=>{
+   const buy=rows[i+1];if(!buy)return null;
+   const values=Object.fromEntries(horizons.map(h=>{const sell=valueAt(i+1,h);return [h,sell?((250*(1-feeRate)/buy.close*sell.close*(1-feeRate)/250)-1)*100:null];}));
+   if(values[90]===null)return null;
+   return {signalDate:rows[i].date,entryDate:buy.date,values};
+  };
+  let previousDay=-999;
+  for(let i=200;i<rows.length-1;i++){
+   const sg=signalAt(rows,i);
+   if(!sg.candidate||i-previousDay<10)continue;
+   const r=out(i);if(r){candidates.push(r);previousDay=i;}
+  }
+  let lastMonth='';
+  for(let i=200;i<rows.length-1;i++){
+   const month=rows[i].date.slice(0,7);
+   if(month===lastMonth)continue;
+   lastMonth=month;
+   const result=out(i);if(result)monthly.push(result);
+  }
+  const summarize=list=>Object.fromEntries(horizons.map(h=>{
+   const vals=list.map(i=>i.values[h]).filter(Number.isFinite);
+   return [h,{n:vals.length,avg:vals.length?avg(vals):null,wins:vals.filter(x=>x>0).length,worst:vals.length?Math.min(...vals):null}];
+  }));
+  const cutDate=rows[Math.floor(rows.length*.75)]?.date;
+  funds[id]={ok:true,candidates:summarize(candidates),monthly:summarize(monthly),holdout:summarize(candidates.filter(t=>t.signalDate>=cutDate)),count:candidates.length,cutDate,from:rows[200].date,to:rows.at(-1).date};total+=candidates.length;
+ }
+ return {ok:total>0,funds,total,feeRate};
+}
+function swingSnapshot(rows,context){
+ const p=normalize(rows),s=signalAt(p,p.length-1),macro=contextSummary(context);
+ if(!Number.isFinite(s?.price)||p.length<201||!isFresh(s.date))return {ready:false,reason:'Histórico insuficiente ou preço desatualizado.'};
+ const prices=p.slice(-20).map(x=>x.close),sma20=avg(prices),previous20=avg(p.slice(-21,-1).map(x=>x.close));
+ const vol=s.vol,check=s.state==='green'&&s.price>sma20&&sma20>previous20&&s.day>0&&s.day<=2;
+ const macroOk=macro.vix?.fresh&&macro.ndx?.fresh&&macro.us?.fresh&&macro.vix.close<25&&macro.ndx.day>-2.5&&macro.us.day>-2;
+ return {ready:true,watch:!!(check&&macroOk),date:s.date,price:s.price,vol,day:s.day,sma20,reason:check&&macroOk?'Condições de observação swing reunidas. Não é prova de rentabilidade.':!macroOk?'Mercado global volátil, em queda ou com dados insuficientes.':'Sem configuração técnica de observação swing.'};
+}
+
+return {FUNDS,CONTEXT,DEFAULT_PORTFOLIO,clone,totalByFund,normalize,pct,signalAt,signal,isFresh,contextSummary,guardCandidate,runBacktest,maxDrawdown,calendarPlus,executeTrial,trialOutcome,paperSummary,entryStudy,swingSnapshot};
 });

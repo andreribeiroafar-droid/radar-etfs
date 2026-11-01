@@ -9,7 +9,7 @@ const FEE=.002;
 let portfolio=safeLoad('radar-portfolio-v1',E.clone(E.DEFAULT_PORTFOLIO));
 let trials=loadTrials();
 let market={},marketContext={},feedTime=null;let quoteFresh=false;
-const TRIAL_STORE='radar-paper-trials-v3';
+const TRIAL_STORE='radar-paper-trials-v3'; // preserva as experiências existentes
 const MAX_ENTRY=250;
 const assetIds=['nasdaq','sp500','world'];
 function validTrials(value){
@@ -27,6 +27,7 @@ function validTrials(value){
   used.add(t.ref);
   out.push({ref:t.ref,id:t.id,amount:250,signalDate:t.signalDate,signalPrice:t.signalPrice,
     recordedAt:typeof t.recordedAt==='string'&&/^\d{4}-\d{2}-\d{2}T[0-9:.+-]+Z?$/.test(t.recordedAt)?t.recordedAt:'',
+    mode:['signal','manual','swing'].includes(t.mode)?t.mode:'signal',
     signalText:typeof t.signalText==='string'?t.signalText.slice(0,180):'',
     vix:typeof t.vix==='number'&&t.vix>0?t.vix:null,
     fillDate:t.fillDate||null,fillPrice:t.fillPrice||null,units:t.units||null,
@@ -108,12 +109,15 @@ function renderSignals(){
     wrap.appendChild(card);
   }
   renderMacro();
-  const selected=el('etf-select').value,chosen=sig[selected],g=investmentGuard(selected,chosen);
+  const selected=el('etf-select').value,chosen=sig[selected],mode=el('trade-mode').value,g=investmentGuard(selected,chosen);
   const duplicate=trials.some(t=>t.id===selected&&t.signalDate===chosen.date);
-  const eligible=g.ok&&trials.length<4&&!duplicate&&quoteFresh;
+  const ready=chosen.fresh&&quoteFresh;
+  const eligible=(mode==='signal'?g.ok:ready)&&trials.length<4&&!duplicate;
   el('paper-buy').disabled=!eligible;
-  el('paper-hint').textContent=trials.length>=4?'As quatro experiências já estão registadas.':duplicate?'Este sinal já foi aceite para este ETF.':!quoteFresh?'São necessários os três ETFs com dados recentes.':g.reason;
+  el('paper-buy').textContent=mode==='signal'?'Aceitar sinal · simular 250 €':mode==='swing'?'Testar swing · 250 € fictícios':'Comprar livre · 250 € fictícios';
+  el('paper-hint').textContent=trials.length>=4?'As quatro experiências já estão registadas.':duplicate?'Já existe uma experiência para este ETF e fecho.':!ready?'São necessários preços dos três ETFs recentes.':mode==='signal'?g.reason:mode==='manual'?'Compra manual sem confirmação do algoritmo. Não conta para a taxa de acerto dos sinais.':'Operação swing livre: só no simulador, sem execução automática de stops.';
   renderPaper();
+  renderSwing();
 }
 function latestQuote(id){return E.normalize(market[id]?.prices||[]).at(-1)||null;}
 function valuationBadge(out){
@@ -127,53 +131,50 @@ function renderPaper(){
   const state=E.paperSummary(trials,market,FEE);
   trials=state.items.map(x=>x.trial);
   if(JSON.stringify(trials)!==old)persistTrials();
-  const positive=state.items.filter(item=>item.week.status==='complete'&&item.week.pnl>=0).length;
-  const negative=state.items.filter(item=>item.week.status==='complete'&&item.week.pnl<0).length;
-  const reviewed=positive+negative;
+  const batches=[['signal','Sinais automáticos'],['manual','Compras livres'],['swing','Swing virtual']].map(([mode,title])=>{
+    const done=state.items.filter(x=>x.trial.mode===mode&&x.week.status==='complete');
+    const profit=done.reduce((n,x)=>n+x.week.pnl,0);
+    const wins=done.filter(x=>x.week.pnl>0).length;
+    return {mode,title,n:done.length,wins,profit};
+  });
   el('paper-cash').textContent=euro(state.available);
   el('paper-value').textContent=state.value===null?'—':euro(state.value);
   el('paper-pl').textContent=state.value===null?'Sem histórico para avaliar todas as posições':`${state.value-1000>=0?'+':''}${euro(state.value-1000)} face a 1.000 € · custos hipotéticos de entrada e saída`;
   el('tranches-remaining').textContent=`${4-trials.length} de 4 experiências disponíveis · ${state.items.filter(x=>!x.trial.fillDate).length} ordem(ns) fictícia(s) a aguardar próximo fecho`;
   const weekly=el('week-summary');
-  if(reviewed===0){weekly.innerHTML='<div class="week-banner"><b>Resultados após 7 dias</b><span>Ainda não há experiências com uma semana concluída. Os valores não são previsões.</span></div>';}
-  else{
-   const all=state.items.filter(x=>x.week.status==='complete');
-   const mean=all.reduce((s,x)=>s+x.week.returnPct,0)/all.length;
-   const gains=all.reduce((s,x)=>s+x.week.pnl,0);
-   weekly.innerHTML=`<div class="week-banner"><b>Balanço de 7 dias</b><div class="score-grid"><div><strong>${reviewed}</strong><small>avaliadas</small></div><div><strong>${positive}</strong><small>positivas</small></div><div><strong>${negative}</strong><small>negativas</small></div><div><strong class="${gains>=0?'result-plus':'result-minus'}">${gains>=0?'+':''}${euro(gains)}</strong><small>lucro/prejuízo fictício</small></div></div><span>Retorno médio ${mean>=0?'+':''}${percent(mean)} · Apenas ${reviewed} observações. Isto não é taxa de sucesso comprovada nem aconselhamento.</span></div>`;
-  }
+  weekly.innerHTML=`<div class="week-banner"><b>Balanço após 7 dias · por modalidade</b><div class="score-grid">${batches.map(x=>`<div><small>${x.title}</small><strong>${x.n} avaliadas</strong><span class="${x.profit>=0?'result-plus':'result-minus'}">${x.n?`${x.wins}/${x.n} positivas · ${x.profit>=0?'+':''}${euro(x.profit)}`:'Sem resultados'}</span></div>`).join('')}</div><span>Resultados apenas após cada prazo. Não contamos compras livres como vitórias do algoritmo. Uma amostra pequena não prova rentabilidade.</span></div>`;
   const holdings=el('positions');holdings.innerHTML='';
-  if(!state.items.length)holdings.innerHTML='<div class="empty-state">Aguarda um sinal validado. Quando surgir, aceita uma entrada virtual de 250 € e acompanha-a aqui.</div>';
-  state.items.slice().reverse().forEach(({trial,quote,current,nextSession,week,month})=>{
+  if(!state.items.length)holdings.innerHTML='<div class="empty-state">Ainda não há experiências. Podes testar um sinal automático ou registar uma compra livre de 250 € com dados válidos.</div>';
+  state.items.slice().reverse().forEach(({trial,quote,current,nextSession,week,month,quarter})=>{
     const box=document.createElement('article');box.className='trial-card';
     const status=trial.fillDate?`Executada virtualmente em ${trial.fillDate} · referência ${euro(trial.fillPrice)}`:'Pendente · executa ao primeiro fecho posterior ao registo';
     const currentText=trial.fillDate?(current!==null?`Valor estimado ${euro(current)} · fecho ${quote?.date}`:'Sem cotação para estimativa'):'250 € reservados, ainda não investidos';
-    box.innerHTML=`<div class="trial-head"><div><div class="trial-title">${funds[trial.id].short} <span class="trial-chip">250 € VIRTUAIS</span></div><small>Sinal ${trial.signalDate} · ${status}</small></div><div class="trial-current">${currentText}</div></div><div class="horizon-grid"><div><span>Após 1 sessão</span>${valuationBadge(nextSession)}</div><div><span>Após 7 dias</span>${valuationBadge(week)}</div><div><span>Após 30 dias</span>${valuationBadge(month)}</div></div><div class="trial-note">Resultados hipotéticos se vendesses no primeiro fecho elegível de cada prazo, descontando 0,20% na compra e 0,20% na venda. Não são ordens executadas.</div>`;
+    box.innerHTML=`<div class="trial-head"><div><div class="trial-title">${funds[trial.id].short} <span class="trial-chip">${trial.mode==='manual'?'LIVRE':trial.mode==='swing'?'SWING':'SINAL'} · 250 € VIRTUAIS</span></div><small>Referência ${trial.signalDate} · ${status}</small></div><div class="trial-current">${currentText}</div></div><div class="horizon-grid"><div><span>Após 1 sessão</span>${valuationBadge(nextSession)}</div><div><span>Após 7 dias</span>${valuationBadge(week)}</div><div><span>Após 30 dias</span>${valuationBadge(month)}</div><div><span>Após 90 dias</span>${valuationBadge(quarter)}</div></div><div class="trial-note">Resultados hipotéticos se vendesses no primeiro fecho elegível de cada prazo, descontando 0,20% na compra e 0,20% na venda. Não são ordens executadas.</div>`;
     holdings.append(box);
   });
   const ledger=el('ledger');ledger.innerHTML='';
-  if(!state.items.length)ledger.innerHTML='<div class="empty-state">Sem sinais aceites.</div>';
+  if(!state.items.length)ledger.innerHTML='<div class="empty-state">Sem experiências registadas.</div>';
   state.items.slice().reverse().forEach(({trial})=>{
     const row=document.createElement('div');row.className='ledger-row';
     const recorded=trial.recordedAt?trial.recordedAt.slice(0,16).replace('T',' '):'data não registada';
-    row.innerHTML=`<span>${funds[trial.id].short}<br><small>Registo ${recorded} UTC · sinal ${trial.signalDate} · VIX ${trial.vix===null?'—':trial.vix.toFixed(1)}</small></span><b>250 € fictícios</b>`;
+    row.innerHTML=`<span>${trial.mode==='manual'?'[LIVRE] ':trial.mode==='swing'?'[SWING] ':'[SINAL] '}${funds[trial.id].short}<br><small>Registo ${recorded} UTC · sinal ${trial.signalDate} · VIX ${trial.vix===null?'—':trial.vix.toFixed(1)}</small></span><b>250 € fictícios</b>`;
     ledger.append(row);
   });
 }
 function buyPosition(){
-  const id=el('etf-select').value,s=currentSignals()[id],g=investmentGuard(id,s);
-  if(!quoteFresh||!g.ok){notify('Entrada não validada: '+g.reason);return;}
+  const id=el('etf-select').value,s=currentSignals()[id],g=investmentGuard(id,s),mode=el('trade-mode').value;
+  if(!quoteFresh||!s.fresh||(mode==='signal'&&!g.ok)){notify('Entrada não validada: '+(!s.fresh?'Cotação desatualizada':g.reason));return;}
   if(trials.length>=4){notify('Limite de quatro experiências virtuais atingido.');return;}
   if(trials.some(t=>t.id===id&&t.signalDate===s.date)){notify('Este sinal já está registado para o ETF.');return;}
-  if(!confirm(`Registar uma ordem VIRTUAL de 250 € em ${funds[id].short}? A entrada ocorrerá no próximo fecho posterior ao registo, não a um preço passado. Não haverá compra real.`))return;
+  if(!confirm(`Registar ${mode==='signal'?'um sinal automático':mode==='swing'?'um swing livre':'uma compra manual'} de 250 € VIRTUAIS em ${funds[id].short}? Só será executada no próximo fecho posterior ao registo. Sem compra real.`))return;
   const macro=E.contextSummary(marketContext);
   const ref=(globalThis.crypto?.randomUUID?.()||('t'+Date.now()+Math.random().toString(36).slice(2))).replaceAll('.','');
-  trials.push({ref,id,amount:250,signalDate:s.date,signalPrice:s.price,signalText:s.reason,
+  trials.push({ref,id,amount:250,mode,signalDate:s.date,signalPrice:s.price,signalText:s.reason,
     recordedAt:new Date().toISOString(),vix:macro.vix?.close??null,fillDate:null,fillPrice:null,units:null,entryFee:null,feeRate:FEE});
-  persistTrials();renderSignals();notify(`Sinal de ${funds[id].short} aceite para simulação. Os 250 € estão reservados. A entrada só será modelada num fecho posterior à data de registo.`);
+  persistTrials();renderSignals();notify(`Experiência de ${funds[id].short} registada para simulação. Os 250 € estão reservados. A entrada só será modelada num fecho posterior à data de registo.`);
 }
 function downloadTrials(){
- const data={schema:'radar-etf-trials-v3',exportedAt:new Date().toISOString(),trials};
+ const data={schema:'radar-etf-trials-v4',exportedAt:new Date().toISOString(),trials};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='radar-etfs-simulacoes-privado.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
  notify('Cópia de segurança gerada. Guarda-a nos Ficheiros do iPhone, não num repositório público.');
@@ -183,11 +184,11 @@ async function importTrials(event){
  if(file.size>100000){notify('O ficheiro é demasiado grande.');return;}
  try{
    const data=JSON.parse(await file.text());
-   if(data.schema!=='radar-etf-trials-v3')throw Error('Versão incompatível');
+   if(!['radar-etf-trials-v3','radar-etf-trials-v4'].includes(data.schema))throw Error('Versão incompatível');
    const records=validTrials(data.trials);if(records===null)throw Error('Formato inválido');
    if(!confirm(`Substituir as ${trials.length} experiências atuais pelas ${records.length} do ficheiro privado?`))return;
    trials=records;persistTrials();renderSignals();notify('Histórico virtual importado neste dispositivo.');
- }catch{notify('Histórico inválido. Verifica se escolheste a exportação da versão 3.');}
+ }catch{notify('Histórico inválido. Escolhe a exportação v3 ou v4.');}
 }
 function notify(message){el('notice').innerHTML='';const box=document.createElement('div');box.className='message';box.textContent=message;el('notice').append(box);}
 function linePath(values,min,max){const w=760,h=250;return values.map((v,i)=>`${i?'L':'M'}${(i/Math.max(1,values.length-1)*w).toFixed(1)},${(h-(v-min)/(max-min||1)*h).toFixed(1)}`).join(' ');}
@@ -248,8 +249,44 @@ async function fetchMarket(){
       if(item?.ticker===c.ticker)marketContext[id]={ticker:item.ticker,prices:E.normalize(item.prices)};
     }
   }catch(err){market={};marketContext={};notify('Não foi possível obter as cotações. A carteira continua disponível sem sinais.');}
-  renderSignals();renderBacktest();
+  renderSignals();renderBacktest();renderEntryStudy();
 }
+
+function renderSwing(){
+ const box=el('swing-cards');if(!box)return;
+ box.innerHTML='';
+ for(const id of assetIds){
+  const s=E.swingSnapshot(market[id]?.prices||[],marketContext),card=document.createElement('article');card.className='macro-card swing-card';
+  const title=document.createElement('small');title.textContent=funds[id].short+' · '+funds[id].ticker;card.append(title);
+  const badge=document.createElement('strong');badge.textContent=!s.ready?'Sem dados':s.watch?'Em observação':'Aguardar';card.append(badge);
+  const detail=document.createElement('span');detail.textContent=s.ready?`Fecho ${s.date} · ${euro(s.price)} · dia ${percent(s.day)} · vol. anual. ${percent(s.vol)}`:'Histórico indisponível';card.append(detail);
+  const reason=document.createElement('p');reason.className='muted';reason.textContent=s.reason;card.append(reason);
+  const btn=document.createElement('button');btn.className='btn secondary';btn.textContent='Experimentar swing virtual ↗';btn.disabled=!s.ready||trials.length>=4||!quoteFresh;
+  btn.addEventListener('click',()=>{el('etf-select').value=id;el('trade-mode').value='swing';renderSignals();document.getElementById('plano').scrollIntoView({behavior:'smooth'});});card.append(btn);
+  box.append(card);
+ }
+}
+function renderEntryStudy(){
+ const elbox=el('entry-study');if(!elbox)return;
+ const r=E.entryStudy(market,FEE);
+ if(!r.ok){elbox.innerHTML='<div class="empty-state">Histórico insuficiente para analisar entradas técnicas. Não apresentamos resultados inventados.</div>';return;}
+ elbox.innerHTML='';
+ for(const id of assetIds){
+  const x=r.funds[id],wrap=document.createElement('div');wrap.className='study-card';
+  if(!x?.ok){wrap.textContent=funds[id].short+' — sem histórico suficiente';elbox.append(wrap);continue;}
+  const title=document.createElement('h3');title.textContent=funds[id].short+' · '+x.count+' sinais históricos';wrap.append(title);
+  const subtitle=document.createElement('p');subtitle.className='muted';subtitle.textContent='Amostra '+x.from+' a '+x.to+' · custos de entrada e saída simulados · resultados em %';wrap.append(subtitle);
+  const table=document.createElement('table');table.className='study-table';
+  const tr=document.createElement('tr');['Prazo','Sinais técnicos','Compra mensal','Sinais últimos 25%'].forEach(t=>{const th=document.createElement('th');th.textContent=t;tr.append(th);});table.append(tr);
+  for(const h of [7,30,90]){
+   const r=document.createElement('tr');const vals=[`${h} dias`,x.candidates[h],x.monthly[h],x.holdout[h]];
+   for(const item of vals){const td=document.createElement('td');td.textContent=typeof item==='string'?item:item.n?`${percent(item.avg)} média · ${item.wins}/${item.n} positivos`:'Sem observações';r.append(td);}table.append(r);
+  }
+  wrap.append(table);elbox.append(wrap);
+ }
+ const note=document.createElement('p');note.className='muted';note.textContent='Comparação exploratória, não emparelhada e não causal. As amostras têm datas e tamanhos diferentes. O estudo usa apenas o candidato técnico; não reproduz as restrições macro e de concentração, nem evita a posterior seleção de parâmetros.';elbox.append(note);
+}
+
 function wire(){
   el('edit-portfolio').addEventListener('click',portfolioEditor);
   el('import-portfolio').addEventListener('click',()=>el('portfolio-file').click());
@@ -258,6 +295,7 @@ function wire(){
   el('portfolio-form').addEventListener('submit',savePortfolio);
   el('refresh').addEventListener('click',fetchMarket);
   el('etf-select').addEventListener('change',renderSignals);
+  el('trade-mode').addEventListener('change',renderSignals);
   el('paper-buy').addEventListener('click',buyPosition);
   el('export-paper').addEventListener('click',downloadTrials);
   el('import-paper').addEventListener('click',()=>el('paper-file').click());

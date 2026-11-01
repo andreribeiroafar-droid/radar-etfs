@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#09151f" />
-  <meta name="description" content="Radar ETFs v3: simulação verificável de entradas virtuais de 250 €, resultados após 7 e 30 dias e gestão de risco." />
+  <meta name="description" content="Radar ETFs v4: simulação verificável de entradas virtuais de 250 €, resultados após 7 e 30 dias e gestão de risco." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="assets/icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <title>Radar ETFs | Gestão de risco</title>
 </head>
 <body>
@@ -50,30 +50,42 @@
   </section>
   <section id="plano" class="section">
     <div class="section-title"><div><div class="eyebrow">03 / MODO PAPEL</div><h2>Experiência de 1.000 €</h2></div><div class="pill outline">SEM ORDENS REAIS</div></div>
-    <p class="muted">Podes aceitar até <b>quatro sinais de 250 € virtuais</b>. Cada ordem fictícia fica pendente e só é executada ao <b>primeiro fecho posterior ao dia em que aceitaste o sinal</b> (nunca ao fecho que já conhecíamos). A app mede o resultado <b>após 1 sessão, 7 dias e 30 dias</b>, incluindo comissões hipotéticas de entrada e saída. Uma semana é apenas uma observação, não prova de fiabilidade.</p>
+    <p class="muted">Podes registar até <b>quatro experiências virtuais de 250 €</b>: sinais validados, compras livres e experiências swing. São modos distintos. Cada ordem fictícia fica pendente e só é executada ao <b>primeiro fecho posterior ao dia em que aceitaste o sinal</b> (nunca ao fecho que já conhecíamos). A app mede o resultado <b>após 1 sessão, 7, 30 e 90 dias</b>, incluindo comissões hipotéticas de entrada e saída. Uma semana é apenas uma observação, não prova de fiabilidade.</p>
     <div class="experiment-grid"><div class="experiment-number"><span>Orçamento livre</span><strong id="paper-cash">—</strong><small>O restante está reservado ou investido virtualmente</small></div><div class="experiment-number"><span>Valor virtual estimado</span><strong id="paper-value">—</strong><small id="paper-pl">Aguarda cotações do mercado</small></div></div>
     <p class="muted" id="tranches-remaining">4 de 4 entradas de 250 € ainda disponíveis</p>
-    <div class="form-card"><div class="field-row"><label for="etf-select">ETF para testar</label><select id="etf-select"><option value="nasdaq">EQQQ Nasdaq-100 Acc</option><option value="sp500">S&amp;P 500 EUR Hedged Acc</option><option value="world">MSCI World Acc</option></select></div><div class="field-row"><label for="buy-amount">Montante (€)</label><input id="buy-amount" type="number" value="250" readonly aria-label="250 euros fixos por entrada"></div><button class="btn primary full" id="paper-buy">Aceitar sinal · simular 250 €</button><p id="paper-hint" class="form-hint"></p></div>
+    <div class="form-card"><div class="field-row"><label for="trade-mode">Tipo de experiência</label><select id="trade-mode"><option value="signal">Sinal automático (regras rigorosas)</option><option value="manual">Compra livre — sem sinal automático</option><option value="swing">Swing trading virtual (curto prazo)</option></select></div><div class="field-row"><label for="etf-select">ETF para testar</label><select id="etf-select"><option value="nasdaq">EQQQ Nasdaq-100 Acc</option><option value="sp500">S&amp;P 500 EUR Hedged Acc</option><option value="world">MSCI World Acc</option></select></div><div class="field-row"><label for="buy-amount">Montante (€)</label><input id="buy-amount" type="number" value="250" readonly aria-label="250 euros fixos por entrada"></div><button class="btn primary full" id="paper-buy">Aceitar sinal · simular 250 €</button><p id="paper-hint" class="form-hint"></p></div>
+    <p class="muted">Todas as compras são simuladas ao primeiro fecho publicado posterior ao teu registo, com cotações não oficiais. No modo livre ou swing, a entrada <b>não é atribuída ao algoritmo</b>. O modo swing mostra níveis teóricos de risco, mas não executa stops intradiários.</p>
     <div class="week-summary" id="week-summary"><div class="empty-state">As análises de 7 dias aparecem depois de haver compras virtuais executadas e cotações posteriores.</div></div>
     <div class="ledger-header"><h3>Experiências em acompanhamento</h3><span class="muted">Resultados por entrada</span></div>
     <div id="positions"></div>
     <div class="ledger-header"><h3>Diário de decisões</h3><button class="link-button" id="export-paper">Exportar histórico</button><button class="link-button" id="import-paper">Importar histórico</button><button class="link-button danger-link" id="clear-paper">Reiniciar tudo</button><input id="paper-file" type="file" accept=".json,application/json" hidden></div><div id="ledger" class="ledger"></div>
     <div class="info-panel">O dinheiro virtual não está ligado às corretoras. A app assume 0,20% de custos na entrada e 0,20% na venda hipotética. A execução ao fecho seguinte é apenas um modelo: na realidade, há spread, derrapagem de preço, impostos e risco de indisponibilidade. Os resultados ficam neste dispositivo: exporta um backup para não os perderes. Não apagues os dados do Safari antes da avaliação.</div>
   </section>
+  <section id="trading" class="section">
+    <div class="section-title"><div><div class="eyebrow">04 / PESQUISA DE CURTO PRAZO</div><h2>Trading Lab</h2></div><div class="pill outline">SÓ VIRTUAL</div></div>
+    <p class="muted">Monitorização de <b>swing trading</b> por fechos diários, não scalping ou trading em tempo real. Sem CFDs, alavancagem ou ordens. O cenário hipotético de 250 € utiliza <b>stop -2%</b> e <b>objetivo +4%</b> apenas para dimensionar o risco. Uma ordem real pode executar a outro preço, sobretudo após gaps.</p>
+    <div class="macro-grid" id="swing-cards"><div class="empty-state">A aguardar histórico...</div></div>
+    <div class="info-panel"><b>Exemplo de risco por entrada:</b> 250 € com stop teórico de 2% equivale a 5 € de movimento adverso antes de comissões. Com 0,20% por lado, o custo ilustrativo total ronda 1 €. Os limites não estão garantidos; podem ser ultrapassados por gaps e derrapagem.</div>
+  </section>
   <section id="teste" class="section">
     <div class="section-title"><div><div class="eyebrow">04 / PROVA DE CONCEITO</div><h2>Testar antes de confiar</h2></div></div>
-    <p class="muted">Compara 1.000 € em duas estratégias: <b>manter os três ETFs</b> ou <b>reduzir exposição quando o risco sobe</b>. Inclui custo simulado de 0,20% por volume transacionado, análise de sensibilidade com 0,50%, teste do último quarto do histórico separado dos restantes e períodos de tensão quando existirem cotações. Os dados são reais apenas depois de um feed histórico válido ser publicado; não são gerados retornos fictícios.</p>
+    <p class="muted">Compara 1.000 € em duas estratégias: <b>manter os três ETFs</b> ou <b>reduzir exposição quando o risco sobe</b>. Inclui custo simulado de 0,20% por volume transacionado, análise de sensibilidade com 0,50%, teste do último quarto do histórico separado dos restantes e períodos de tensão quando existirem cotações. Os dados são cotações reportadas por fonte não oficial, apenas depois de um feed histórico válido ser publicado; não são gerados retornos fictícios.</p>
     <div id="backtest" class="backtest"><div class="empty-state">A aguardar histórico válido. Não são apresentados resultados inventados.</div></div>
     <details class="rules"><summary>Como é calculado o teste</summary><div class="rules-body"><p><b>Manter:</b> compra inicial nas proporções atuais, sem rebalanceamentos posteriores.</p><p><b>Adaptativo:</b> mantém 100% da exposição planeada em regime verde; 50% em amarelo; 0% em vermelho. O dinheiro restante fica em caixa sem rendimento. Cada decisão utiliza o sinal do fecho anterior; a simulação negocia ao fecho seguinte com custos hipotéticos. Não utiliza o fecho do próprio dia para gerar o sinal aplicado nesse dia. Cada mudança de posição tem custo ilustrativo de 0,20% do volume negociado.</p><p>São calculados valor final, retorno, volatilidade anualizada, perda máxima de pico a vale e número de ajustes. Um único histórico favorável não prova que a estratégia vá funcionar no futuro: devemos testar diferentes janelas e períodos fora da amostra antes de qualquer decisão com dinheiro real.</p></div></details>
   </section>
-  <section id="fontes" class="section compact"><div class="section-title"><div><div class="eyebrow">05 / TRANSPARÊNCIA</div><h2>Fontes e limites</h2></div></div>
+  <section id="eventos" class="section">
+    <div class="section-title"><div><div class="eyebrow">06 / ESTUDO DE ENTRADAS</div><h2>Os sinais acrescentam valor?</h2></div></div>
+    <p class="muted">Estudo histórico de eventos: sinal técnico no fecho, entrada ao fecho seguinte, venda hipotética ao primeiro fecho após 7, 30 ou 90 dias. Compara a regra técnica de observação com uma compra mensal simples, sem impostos, com custos de 0,20% de cada lado. <b>Não é o backtest completo dos filtros globais.</b> O período final é mostrado separadamente, mas os parâmetros não foram calibrados fora dele: não constitui prova independente.</p>
+    <div id="entry-study" class="backtest"><div class="empty-state">A aguardar dados históricos...</div></div>
+  </section>
+  <section id="fontes" class="section compact"><div class="section-title"><div><div class="eyebrow">07 / TRANSPARÊNCIA</div><h2>Fontes e limites</h2></div></div>
     <div class="source-grid"><div class="source-item"><b>EQAC.MI</b><span>Invesco EQQQ Nasdaq-100 Acc · IE00BFZXGZ54 · Itália · EUR</span></div><div class="source-item"><b>IBCF.DE</b><span>iShares S&amp;P 500 EUR Hedged Acc · IE00B3ZW0K18 · Xetra · EUR</span></div><div class="source-item"><b>EUNL.DE</b><span>iShares Core MSCI World Acc · IE00B4L5Y983 · Xetra · EUR</span></div></div>
     <p class="muted">A importação programada obtém dados históricos ajustados através da biblioteca comunitária yfinance (fonte não oficial e sujeita a falhas). A aplicação não lê contas bancárias, não envia ordens, não guarda credenciais e conserva as simulações apenas neste navegador. Antes de investir, valida sempre preço, ISIN, spread e custos na tua corretora.</p>
   </section>
-  <footer>RadarETF v3.0 · Ferramenta pessoal de análise e aprendizagem. <a href="#carteira">Voltar ao início ↑</a></footer>
+  <footer>RadarETF v4.0 · Ferramenta pessoal de análise e aprendizagem. <a href="#carteira">Voltar ao início ↑</a></footer>
 </main>
-<nav class="bottom-nav" aria-label="Navegação"><a href="#carteira"><span>◈</span>Carteira</a><a href="#sinais"><span>◉</span>Sinais</a><a href="#plano"><span>◎</span>1.000 €</a><a href="#teste"><span>▤</span>Testes</a></nav>
+<nav class="bottom-nav" aria-label="Navegação"><a href="#carteira"><span>◈</span>Carteira</a><a href="#sinais"><span>◉</span>Sinais</a><a href="#plano"><span>◎</span>1.000 €</a><a href="#trading"><span>↗</span>Trading</a><a href="#teste"><span>▤</span>Testes</a></nav>
 <dialog id="portfolio-dialog"><form method="dialog" id="portfolio-form"><div class="modal-header"><h2>Atualizar carteira</h2><button type="button" class="close" id="close-dialog" aria-label="Fechar">×</button></div><p>Introduz o valor, em euros, de cada ETF por corretora. A app guarda estes montantes só no teu dispositivo.</p><label>TR · Nasdaq-100 (€)<input id="p-tr-nasdaq" type="number" min="0" step="0.01" required></label><label>DEGIRO · Nasdaq-100 (€)<input id="p-deg-nasdaq" type="number" min="0" step="0.01" required></label><label>TR · S&amp;P 500 (€)<input id="p-tr-sp500" type="number" min="0" step="0.01" required></label><label>DEGIRO · S&amp;P 500 (€)<input id="p-deg-sp500" type="number" min="0" step="0.01" required></label><label>DEGIRO · MSCI World (€)<input id="p-deg-world" type="number" min="0" step="0.01" required></label><label>Data dos valores<input id="p-date" type="date" required></label><button class="btn primary full" type="submit">Guardar alterações</button></form></dialog>
-<script src="engine.js?v=3"></script><script src="app.js?v=3"></script>
+<script src="engine.js?v=4"></script><script src="app.js?v=4"></script>
 </body>
 </html>
