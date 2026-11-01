@@ -9,7 +9,7 @@ on:
     - cron: '15 22 * * 1-5'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -26,24 +26,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
+          cache: pip
 
       - run: pip install -r requirements.txt
 
-      - name: Obter cotações (falhar se atualização diária não resultar)
+      - name: Atualizar cotações
+        run: python scripts/update_market.py
+
+      - name: Executar Forex Autopilot virtual
+        run: python scripts/forex_autopilot.py
+
+      - name: Guardar diário virtual
         shell: bash
         run: |
-          if ! python scripts/update_market.py; then
-            if [[ "${{ github.event_name }}" == "push" ]]; then
-              echo "Publicação inicial sem dados: a interface indicará sem sinais."
-            else
-              echo "Sem atualização fidedigna: não publicar dados novos nem substituir a versão anterior."
-              exit 1
-            fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/forex_autopilot.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update virtual forex autopilot ledger [skip ci]"
+            git push origin HEAD:main
           fi
 
       - uses: actions/configure-pages@v5
