@@ -45,14 +45,14 @@ jobs:
       - name: Validar observação Forex sem operações
         run: python scripts/forex_autopilot.py
 
-      - name: Guardar diário de observação
+      - name: Guardar cotações e diário de observação
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/forex_autopilot.json
+          git add data/market.json data/forex_autopilot.json
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update virtual forex autopilot ledger [skip ci]"
+            git commit -m "chore: update market snapshot and Forex observation ledger [skip ci]"
             git push origin HEAD:main
           fi
 
