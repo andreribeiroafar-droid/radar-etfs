@@ -26,6 +26,6 @@
     }
   ],
   "market_date": "2026-11-02",
-  "status": "active",
-  "last_attempt_utc": "2026-11-02T22:53:35+00:00"
+  "status": "validation-only",
+  "last_attempt_utc": "2026-11-02T23:54:22+00:00"
 }
