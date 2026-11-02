@@ -214,7 +214,7 @@ def run(feed_path=MARKET, state_path=STATE, *, today=None) -> dict:
         record(s, date, 'initialised', 'Início da observação prospetiva; sem transações retroativas')
     elif date > s['last_processed']:
         # If sessions were skipped, do not pretend to have executed at dates we missed.
-        if s.get('pending'):
+        if ALLOW_VIRTUAL_EXECUTION and s.get('pending'):
             prev = dt.date.fromisoformat(s['last_processed'])
             elapsed = (dt.date.fromisoformat(date) - prev).days
             if elapsed > 7:
