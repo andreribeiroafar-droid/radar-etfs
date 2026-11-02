@@ -139,4 +139,21 @@ class ForexAutopilotTest(unittest.TestCase):
             self.assertEqual(json.loads(state.read_text())['cash'],1000)
 
 
+    def test_stale_pending_is_preserved_in_validation_mode(self):
+        f=dataset()
+        current=f['eurusd'][-1]['date']
+        old=(dt.date.fromisoformat(current)-dt.timedelta(days=12)).isoformat()
+        with tempfile.TemporaryDirectory() as d:
+            market=Path(d)/'market.json'; state=Path(d)/'state.json'
+            market.write_text(json.dumps(feed(f)))
+            s=a.new_state(old)
+            s['pending']={'side':'buy','pair':'eurgbp','signal_date':old,'reason':'legacy'}
+            state.write_text(json.dumps(s))
+            result=a.run(market,state,today=dt.date.fromisoformat(current))
+            self.assertEqual(result['pending'],s['pending'])
+            self.assertEqual(result['cash'],1000)
+            self.assertEqual(result['trade_count'],0)
+            self.assertEqual(result['status'],'validation-only')
+
+
 if __name__=='__main__':unittest.main()
