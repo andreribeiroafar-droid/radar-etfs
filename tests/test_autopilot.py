@@ -93,3 +93,50 @@ class ForexAutopilotTest(unittest.TestCase):
         self.assertIsNone(s['position'])
         self.assertEqual(s['pending'],original)
         self.assertTrue(any(e['event']=='execution-blocked' for e in s['events']))
+
+
+    def test_deterministic_entry_rejects_high_vix(self):
+        f=dataset()
+        last=f['eurusd'][-1]['date']
+        self.assertIsNone(a.entry_candidate(f,last, {'date':last,'value':31}))
+        self.assertIsNone(a.entry_candidate(f,last, None))
+
+    def test_pending_sell_is_blocked_and_position_preserved(self):
+        f=dataset()
+        current=f['eurusd'][-1]['date']; previous=f['eurusd'][-2]['date']
+        entry=f['eurusd'][-2]['close']
+        s=a.new_state(previous)
+        s['cash']=750
+        s['trade_count']=1
+        s['position']={'pair':'eurusd','buy_date':previous,'entry_rate':entry,
+                       'foreign_units':250*(1-a.FEE)*entry,'eur_debited':250,'bars_held':1}
+        s['pending']={'side':'sell','pair':'eurusd','signal_date':previous,'reason':'teste'}
+        old_position=dict(s['position']); old_pending=dict(s['pending'])
+        a.process(s,current,f,{'date':current,'value':18})
+        self.assertEqual(s['position'],old_position)
+        self.assertEqual(s['pending'],old_pending)
+        self.assertEqual(s['cash'],750)
+        self.assertEqual(s['trade_count'],1)
+        self.assertEqual(s['closed'],[])
+        self.assertTrue(any(e['event']=='execution-blocked' for e in s['events']))
+
+    def test_run_preserves_existing_ledger(self):
+        f=dataset()
+        current=f['eurusd'][-1]['date']; previous=f['eurusd'][-2]['date']
+        with tempfile.TemporaryDirectory() as d:
+            market=Path(d)/'market.json'; state=Path(d)/'state.json'
+            market.write_text(json.dumps(feed(f)))
+            s=a.new_state(previous)
+            s['pending']={'side':'buy','pair':'eurgbp','signal_date':previous,'reason':'legacy'}
+            s['events']=[{'date':previous,'event':'buy-signal','details':'historical'}]
+            state.write_text(json.dumps(s))
+            result=a.run(market,state,today=dt.date.fromisoformat(current))
+            self.assertEqual(result['cash'],1000)
+            self.assertEqual(result['trade_count'],0)
+            self.assertEqual(result['pending'],s['pending'])
+            self.assertEqual(result['events'][0],s['events'][0])
+            self.assertEqual(result['status'],'validation-only')
+            self.assertEqual(json.loads(state.read_text())['cash'],1000)
+
+
+if __name__=='__main__':unittest.main()
