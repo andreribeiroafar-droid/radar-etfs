@@ -3,6 +3,12 @@ name: Test Forex Autopilot v4.3
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/forex_autopilot.py'
+      - 'tests/test_autopilot.py'
+      - '.github/workflows/test-autopilot.yml'
 
 permissions:
   contents: read
