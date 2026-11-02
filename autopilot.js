@@ -59,7 +59,7 @@
     const pending=$('auto-pending');pending.replaceChildren();
     if(state.pending){
       const o=state.pending;
-      put(pending,'p','muted',`${o.side==='buy'?'Compra':'Venda'} virtual ${pairs[o.pair]||o.pair} sinalizada em ${o.signal_date}. Apenas poderá executar no próximo fecho elegível.`);
+      put(pending,'p','muted',state.status==='validation-only' ? `${o.side==='buy'?'Compra':'Venda'} virtual ${pairs[o.pair]||o.pair} sinalizada em ${o.signal_date}. Proposta preservada, mas a execução virtual está BLOQUEADA enquanto decorrer a validação.` : `${o.side==='buy'?'Compra':'Venda'} virtual ${pairs[o.pair]||o.pair} sinalizada em ${o.signal_date}. Apenas poderá executar no próximo fecho elegível.`);
     }else{put(pending,'p','muted','Nenhuma operação pendente.');}
     const history=$('auto-log');history.replaceChildren();
     const records=state.events.slice(-16).reverse();
