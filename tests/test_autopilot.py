@@ -64,48 +64,32 @@ class ForexAutopilotTest(unittest.TestCase):
         day, series=a.quotes(feed(f), saturday)
         self.assertEqual(day,today.isoformat())
 
-    def test_signal_buy_sell_on_next_close_with_costs_and_limits(self):
+    def test_buy_signal_is_observation_only(self):
         f=dataset(n=263)
         initial=f['eurusd'][-3]['date']; next_day=f['eurusd'][-2]['date']; later=f['eurusd'][-1]['date']
-        # begin before signal date; test post-signal bar cannot execute same session.
         s=a.new_state(initial)
         segment={k:[r for r in v if r['date']<=next_day] for k,v in f.items()}
         s=a.process(s,next_day,segment,{'date':next_day,'value':18})
+        self.assertFalse(a.ALLOW_VIRTUAL_EXECUTION)
         self.assertEqual(s['trade_count'],0)
-        self.assertIsNotNone(s['pending'])
-        if s['pending']:
-            self.assertEqual(s['pending']['side'],'buy')
-            self.assertEqual(s['pending']['signal_date'],next_day)
-            s=a.process(s,later,f,{'date':later,'value':18})
-            self.assertEqual(s['trade_count'],1)
-            self.assertEqual(s['cash'],750)
-            self.assertEqual(s['position']['buy_date'],later)
-            a.process(s,later,f,{'date':later,'value':18})
-            self.assertEqual(s['trade_count'],1)
-
-    def test_deterministic_entry_rejects_high_vix(self):
-        f=dataset()
-        last=f['eurusd'][-1]['date']
-        self.assertIsNone(a.entry_candidate(f,last, {'date':last,'value':31}))
-        self.assertIsNone(a.entry_candidate(f,last, None))
-
-    def test_pending_sell_fills_and_profit_is_net_of_fees(self):
-        f=dataset()
-        current=f['eurusd'][-1]['date']
-        previous=f['eurusd'][-2]['date']
-        entry=f['eurusd'][-2]['close']
-        s=a.new_state(previous)
-        s['cash']=750
-        s['trade_count']=1
-        s['position']={'pair':'eurusd','buy_date':previous,'entry_rate':entry,
-                       'foreign_units':250*(1-a.FEE)*entry,'eur_debited':250,'bars_held':1}
-        s['pending']={'side':'sell','pair':'eurusd','signal_date':previous,'reason':'teste'}
-        s=a.process(s,current,f,{'date':current,'value':18})
+        self.assertEqual(s['cash'],1000)
+        self.assertIsNone(s['pending'])
         self.assertIsNone(s['position'])
-        self.assertEqual(len(s['closed']),1)
-        expected=250*(1-a.FEE)*entry/f['eurusd'][-1]['close']*(1-a.FEE)
-        self.assertAlmostEqual(s['cash'],750+expected,5)
-        self.assertAlmostEqual(s['closed'][0]['pnl_eur'],expected-250,5)
+        self.assertEqual(s['status'],'validation-only')
+        s=a.process(s,later,f,{'date':later,'value':18})
+        self.assertEqual(s['trade_count'],0)
+        self.assertEqual(s['cash'],1000)
+        self.assertIsNone(s['position'])
 
-
-if __name__=='__main__':unittest.main()
+    def test_pending_buy_is_blocked_and_preserved(self):
+        f=dataset()
+        previous=f['eurusd'][-2]['date']; current=f['eurusd'][-1]['date']
+        s=a.new_state(previous)
+        s['pending']={'side':'buy','pair':'eurgbp','signal_date':previous,'reason':'legacy'}
+        original=dict(s['pending'])
+        a.process(s,current,f,{'date':current,'value':18})
+        self.assertEqual(s['cash'],1000)
+        self.assertEqual(s['trade_count'],0)
+        self.assertIsNone(s['position'])
+        self.assertEqual(s['pending'],original)
+        self.assertTrue(any(e['event']=='execution-blocked' for e in s['events']))
