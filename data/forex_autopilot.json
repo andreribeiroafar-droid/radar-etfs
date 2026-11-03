@@ -2,15 +2,10 @@
   "schema": 1,
   "engine": "forex-autopilot-4.2",
   "started_on": "2026-10-30",
-  "last_processed": "2026-11-02",
+  "last_processed": "2026-11-03",
   "cash": 1000.0,
   "trade_count": 0,
-  "pending": {
-    "side": "buy",
-    "pair": "eurgbp",
-    "signal_date": "2026-11-02",
-    "reason": "queda persistente do EUR face à moeda, com filtros técnicos"
-  },
+  "pending": null,
   "position": null,
   "closed": [],
   "events": [
@@ -23,9 +18,14 @@
       "date": "2026-11-02",
       "event": "buy-signal",
       "details": "eurgbp: tendência cambial; mudança 5d -0.46%; entrada somente no próximo fecho"
+    },
+    {
+      "date": "2026-11-03",
+      "event": "cancel",
+      "details": "Proposta antiga de validação anulada na ativação da simulação"
     }
   ],
-  "market_date": "2026-11-02",
-  "status": "validation-only",
-  "last_attempt_utc": "2026-11-03T00:00:11+00:00"
+  "market_date": "2026-11-03",
+  "status": "monitoring",
+  "last_attempt_utc": "2026-11-03T21:15:09+00:00"
 }
