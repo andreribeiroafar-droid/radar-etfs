@@ -26,7 +26,7 @@ MAX_TRADES = 4
 MAX_HOLD_BARS = 10
 STOP_NET_PCT = -1.5
 TARGET_NET_PCT = 2.5
-ALLOW_VIRTUAL_EXECUTION = False
+ALLOW_VIRTUAL_EXECUTION = True
 
 
 def new_state(date: str) -> dict:
@@ -105,7 +105,7 @@ def entry_candidate(series: dict, d: str, vix: dict | None = None) -> dict | Non
     # No new trades if macro context is missing or panic volatility is high.
     if not vix or not vix.get('date') or not isinstance(vix.get('value'), (int, float)):
         return None
-    if vix['value'] >= 30:
+    if not math.isfinite(vix['value']) or vix['value'] >= 30:
         return None
     candidates = []
     for key, rows in series.items():
@@ -147,6 +147,12 @@ def process(s: dict, date: str, series: dict, vix: dict | None = None) -> dict:
     s['market_date'] = date
     # Only the latest market-close gets acted on. Do not fabricate missed executions.
     pending = s.get('pending')
+    # Discard legacy proposals generated while execution was disabled.
+    # Never convert an old observation into a retroactive paper fill.
+    if pending and s.get('status') == 'validation-only' and ALLOW_VIRTUAL_EXECUTION:
+        record(s, date, 'cancel', 'Proposta antiga de validação anulada na ativação da simulação')
+        s['pending'] = None
+        pending = None
     if pending and not ALLOW_VIRTUAL_EXECUTION:
         record(s, date, 'execution-blocked', 'Proposta anterior mantida sem execução; modo validação')
     if ALLOW_VIRTUAL_EXECUTION and pending and date > pending['signal_date']:
@@ -158,7 +164,7 @@ def process(s: dict, date: str, series: dict, vix: dict | None = None) -> dict:
             candidates = [r['close'] for r in series[pair] if r['date'] == date]
             if candidates:
                 fx = candidates[-1]
-                if pending['side'] == 'buy' and s['position'] is None and s['cash'] >= TICKET and s['trade_count'] < MAX_TRADES:
+                if pending['side'] == 'buy' and s['position'] is None and s['cash'] >= TICKET and s['trade_count'] < MAX_TRADES and vix and isinstance(vix.get('value'), (int, float)) and math.isfinite(vix['value']) and vix['value'] < 30:
                     s['cash'] = round(s['cash'] - TICKET, 8)
                     s['trade_count'] += 1
                     s['position'] = {'pair': pair, 'buy_date': date, 'entry_rate': fx,
@@ -176,6 +182,8 @@ def process(s: dict, date: str, series: dict, vix: dict | None = None) -> dict:
                     s['cash'] = round(s['cash'] + proceeds, 8)
                     s['position'] = None
                     record(s, date, 'sell-filled', f'{pair}: lucro/prejuízo virtual {gain:+.2f} EUR; fecho {fx:.6f}; custo saída 0,15%')
+                else:
+                    record(s, date, 'cancel', f'{pair}: entrada virtual anulada por limite de risco, falta de VIX ou estado inválido')
                 s['pending'] = None
     pos = s.get('position')
     if ALLOW_VIRTUAL_EXECUTION and pos and not s.get('pending'):
@@ -230,6 +238,9 @@ def run(feed_path=MARKET, state_path=STATE, *, today=None) -> dict:
         process(s, date, series, vix)
     if not ALLOW_VIRTUAL_EXECUTION:
         s['status'] = 'validation-only'
+    elif s['status'] == 'validation-only':
+        # No new market session yet: switch status only, not simulated positions.
+        s['status'] = 'monitoring'
     s['last_attempt_utc'] = dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')
     # Market data freshness is independently verified before state mutation.
     path = Path(state_path)
