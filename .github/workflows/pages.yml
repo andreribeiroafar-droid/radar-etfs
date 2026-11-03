@@ -42,10 +42,10 @@ jobs:
       - name: Atualizar cotações
         run: python scripts/update_market.py
 
-      - name: Validar observação Forex sem operações
+      - name: Executar simulação Forex sem ordens reais
         run: python scripts/forex_autopilot.py
 
-      - name: Guardar cotações e diário de observação
+      - name: Guardar cotações e diário de simulação
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
