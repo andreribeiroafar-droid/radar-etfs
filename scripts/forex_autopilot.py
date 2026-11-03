@@ -4,7 +4,7 @@ Requires a validated fresh data/market.json from update_market.py. Runs at most
 once per new common FOREX workday. State is a public simulation journal saved
 in data/forex_autopilot.json and committed by GitHub Actions.
 
-Validation mode: observe signals only; never execute pending orders.
+Paper mode: virtual fills at subsequent validated daily closes; never real orders.
 Signals are hypotheses and not proof of predictive performance.
 """
 from __future__ import annotations
