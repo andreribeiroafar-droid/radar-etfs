@@ -33,6 +33,13 @@ def feed(series):
 
 
 class ForexAutopilotTest(unittest.TestCase):
+    def setUp(self):
+        self.original_execution = a.ALLOW_VIRTUAL_EXECUTION
+        a.ALLOW_VIRTUAL_EXECUTION = False
+
+    def tearDown(self):
+        a.ALLOW_VIRTUAL_EXECUTION = self.original_execution
+
     def test_initialisation_never_backtrades(self):
         f=dataset(); now=dt.date.fromisoformat(f['eurusd'][-1]['date'])
         with tempfile.TemporaryDirectory() as d:
@@ -155,5 +162,50 @@ class ForexAutopilotTest(unittest.TestCase):
             self.assertEqual(result['trade_count'],0)
             self.assertEqual(result['status'],'validation-only')
 
+
+    def test_activation_cancels_legacy_pending_without_buying(self):
+        a.ALLOW_VIRTUAL_EXECUTION = True
+        f=dataset()
+        current=f['eurusd'][-1]['date']; previous=f['eurusd'][-2]['date']
+        s=a.new_state(previous)
+        s['status']='validation-only'
+        s['pending']={'side':'buy','pair':'eurgbp','signal_date':previous,'reason':'legacy'}
+        a.process(s,current,f,{'date':current,'value':31})
+        self.assertEqual(s['cash'],1000)
+        self.assertEqual(s['trade_count'],0)
+        self.assertIsNone(s['pending'])
+        self.assertIsNone(s['position'])
+        self.assertTrue(any(e['event']=='cancel' for e in s['events']))
+
+    def test_paper_buy_and_sell_account_for_both_fees(self):
+        a.ALLOW_VIRTUAL_EXECUTION = True
+        f=dataset()
+        d0=f['eurusd'][-3]['date']; d1=f['eurusd'][-2]['date']; d2=f['eurusd'][-1]['date']
+        s=a.new_state(d0)
+        s['status']='monitoring'
+        s['pending']={'side':'buy','pair':'eurusd','signal_date':d0,'reason':'test'}
+        a.process(s,d1,f,{'date':d1,'value':19})
+        self.assertEqual(s['cash'],750)
+        self.assertEqual(s['trade_count'],1)
+        self.assertIsNotNone(s['position'])
+        s['pending']={'side':'sell','pair':'eurusd','signal_date':d1,'reason':'test'}
+        a.process(s,d2,f,{'date':d2,'value':19})
+        self.assertIsNone(s['position'])
+        self.assertEqual(len(s['closed']),1)
+        expected=250*(1-a.FEE)*f['eurusd'][-2]['close']/f['eurusd'][-1]['close']*(1-a.FEE)
+        self.assertAlmostEqual(s['closed'][0]['received_eur'],expected,places=6)
+        self.assertAlmostEqual(s['cash'],750+expected,places=6)
+
+    def test_high_vix_cancels_pending_paper_buy(self):
+        a.ALLOW_VIRTUAL_EXECUTION = True
+        f=dataset()
+        d0=f['eurusd'][-2]['date']; d1=f['eurusd'][-1]['date']
+        s=a.new_state(d0)
+        s['status']='monitoring'
+        s['pending']={'side':'buy','pair':'eurusd','signal_date':d0,'reason':'test'}
+        a.process(s,d1,f,{'date':d1,'value':31})
+        self.assertEqual(s['cash'],1000)
+        self.assertEqual(s['trade_count'],0)
+        self.assertIsNone(s['position'])
 
 if __name__=='__main__':unittest.main()
