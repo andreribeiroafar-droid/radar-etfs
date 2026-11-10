@@ -2,7 +2,7 @@
   "schema": 1,
   "engine": "forex-autopilot-4.2",
   "started_on": "2026-10-30",
-  "last_processed": "2026-11-09",
+  "last_processed": "2026-11-10",
   "cash": 750.0,
   "trade_count": 1,
   "pending": null,
@@ -12,7 +12,7 @@
     "entry_rate": 0.8347,
     "foreign_units": 208.3619875,
     "eur_debited": 250.0,
-    "bars_held": 1
+    "bars_held": 2
   },
   "closed": [],
   "events": [
@@ -42,7 +42,7 @@
       "details": "eurgbp: 250 EUR virtuais; fecho 0.834700; custo entrada 0,15%"
     }
   ],
-  "market_date": "2026-11-09",
+  "market_date": "2026-11-10",
   "status": "active",
-  "last_attempt_utc": "2026-11-09T22:50:18+00:00"
+  "last_attempt_utc": "2026-11-10T22:47:38+00:00"
 }
