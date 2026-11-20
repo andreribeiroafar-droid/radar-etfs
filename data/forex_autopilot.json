@@ -2,17 +2,22 @@
   "schema": 1,
   "engine": "forex-autopilot-4.2",
   "started_on": "2026-10-30",
-  "last_processed": "2026-11-19",
+  "last_processed": "2026-11-20",
   "cash": 750.0,
   "trade_count": 1,
-  "pending": null,
+  "pending": {
+    "side": "sell",
+    "pair": "eurgbp",
+    "signal_date": "2026-11-20",
+    "reason": "prazo máximo de 10 sessões"
+  },
   "position": {
     "pair": "eurgbp",
     "buy_date": "2026-11-06",
     "entry_rate": 0.8347,
     "foreign_units": 208.3619875,
     "eur_debited": 250.0,
-    "bars_held": 9
+    "bars_held": 10
   },
   "closed": [],
   "events": [
@@ -40,9 +45,14 @@
       "date": "2026-11-06",
       "event": "buy-filled",
       "details": "eurgbp: 250 EUR virtuais; fecho 0.834700; custo entrada 0,15%"
+    },
+    {
+      "date": "2026-11-20",
+      "event": "sell-signal",
+      "details": "eurgbp: prazo máximo de 10 sessões; P/L indicativo -0.70%; saída somente no próximo fecho"
     }
   ],
-  "market_date": "2026-11-19",
+  "market_date": "2026-11-20",
   "status": "active",
-  "last_attempt_utc": "2026-11-19T22:54:28+00:00"
+  "last_attempt_utc": "2026-11-20T22:52:41+00:00"
 }
