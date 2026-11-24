@@ -2,16 +2,18 @@
   "schema": 1,
   "engine": "forex-autopilot-4.2",
   "started_on": "2026-10-30",
-  "last_processed": "2026-11-23",
-  "cash": 998.67260054,
-  "trade_count": 1,
-  "pending": {
-    "side": "buy",
+  "last_processed": "2026-11-24",
+  "cash": 748.67260054,
+  "trade_count": 2,
+  "pending": null,
+  "position": {
     "pair": "eurjpy",
-    "signal_date": "2026-11-23",
-    "reason": "queda persistente do EUR face à moeda, com filtros técnicos"
+    "buy_date": "2026-11-24",
+    "entry_rate": 174.623001,
+    "foreign_units": 43590.266624624994,
+    "eur_debited": 250.0,
+    "bars_held": 0
   },
-  "position": null,
   "closed": [
     {
       "pair": "eurgbp",
@@ -67,9 +69,14 @@
       "date": "2026-11-23",
       "event": "buy-signal",
       "details": "eurjpy: tendência cambial; mudança 5d -1.65%; entrada somente no próximo fecho"
+    },
+    {
+      "date": "2026-11-24",
+      "event": "buy-filled",
+      "details": "eurjpy: 250 EUR virtuais; fecho 174.623001; custo entrada 0,15%"
     }
   ],
-  "market_date": "2026-11-23",
+  "market_date": "2026-11-24",
   "status": "active",
-  "last_attempt_utc": "2026-11-23T22:58:33+00:00"
+  "last_attempt_utc": "2026-11-24T23:02:11+00:00"
 }

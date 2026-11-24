@@ -2,7 +2,7 @@
   "schema": 1,
   "type": "historical-research-not-live-trading",
   "data_source": "Yahoo Finance via yfinance (não oficial; adjusted daily closes)",
-  "data_as_of": "2026-11-23T22:58:33+00:00",
+  "data_as_of": "2026-11-24T23:02:11+00:00",
   "method": "signals at close t; virtual fills at next adjusted close; illustrative 0.15% each side",
   "limitations": [
     "adjusted prices may not represent tradeable fills",
@@ -74,19 +74,19 @@
           "max_drawdown_pct": -5.0,
           "trade_count": 48,
           "invested_eur": 6000.0,
-          "benchmark_return_pct": 89.136,
+          "benchmark_return_pct": 88.123,
           "benchmark_max_drawdown_pct": -35.055,
-          "excess_return_pp": -89.689
+          "excess_return_pp": -88.676
         },
         "accumulate": {
-          "final_eur": 1828.66,
-          "return_pct": 82.866,
+          "final_eur": 1822.39,
+          "return_pct": 82.239,
           "max_drawdown_pct": -35.055,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 89.136,
+          "benchmark_return_pct": 88.123,
           "benchmark_max_drawdown_pct": -35.055,
-          "excess_return_pp": -6.27
+          "excess_return_pp": -5.884
         }
       },
       "test": {
@@ -124,19 +124,19 @@
           "max_drawdown_pct": -2.978,
           "trade_count": 31,
           "invested_eur": 4000.0,
-          "benchmark_return_pct": 91.173,
+          "benchmark_return_pct": 90.52,
           "benchmark_max_drawdown_pct": -33.632,
-          "excess_return_pp": -86.799
+          "excess_return_pp": -86.146
         },
         "accumulate": {
-          "final_eur": 1842.21,
-          "return_pct": 84.221,
+          "final_eur": 1838.12,
+          "return_pct": 83.812,
           "max_drawdown_pct": -33.632,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 91.173,
+          "benchmark_return_pct": 90.52,
           "benchmark_max_drawdown_pct": -33.632,
-          "excess_return_pp": -6.952
+          "excess_return_pp": -6.708
         }
       },
       "test": {
