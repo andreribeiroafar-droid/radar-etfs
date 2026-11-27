@@ -2,7 +2,7 @@
   "schema": 1,
   "type": "historical-research-not-live-trading",
   "data_source": "Yahoo Finance via yfinance (não oficial; adjusted daily closes)",
-  "data_as_of": "2026-11-26T23:02:36+00:00",
+  "data_as_of": "2026-11-27T23:02:01+00:00",
   "method": "signals at close t; virtual fills at next adjusted close; illustrative 0.15% each side",
   "limitations": [
     "adjusted prices may not represent tradeable fills",
@@ -15,8 +15,8 @@
     "EQAC.MI": {
       "isin_unverified": "IE00BFZXGZ54",
       "currency": "EUR",
-      "train_end": "2024-06-11",
-      "test_start": "2024-06-12",
+      "train_end": "2024-06-12",
+      "test_start": "2024-06-13",
       "train": {
         "swing": {
           "final_eur": 1000.47,
@@ -24,19 +24,19 @@
           "max_drawdown_pct": -6.558,
           "trade_count": 70,
           "invested_eur": 8750.0,
-          "benchmark_return_pct": 140.832,
+          "benchmark_return_pct": 143.332,
           "benchmark_max_drawdown_pct": -30.955,
-          "excess_return_pp": -140.785
+          "excess_return_pp": -143.285
         },
         "accumulate": {
-          "final_eur": 2660.02,
-          "return_pct": 166.002,
+          "final_eur": 2687.63,
+          "return_pct": 168.763,
           "max_drawdown_pct": -30.955,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 140.832,
+          "benchmark_return_pct": 143.332,
           "benchmark_max_drawdown_pct": -30.955,
-          "excess_return_pp": 25.17
+          "excess_return_pp": 25.431
         }
       },
       "test": {
@@ -46,27 +46,27 @@
           "max_drawdown_pct": -3.58,
           "trade_count": 22,
           "invested_eur": 2750.0,
-          "benchmark_return_pct": 27.872,
+          "benchmark_return_pct": 31.978,
           "benchmark_max_drawdown_pct": -26.689,
-          "excess_return_pp": -26.237
+          "excess_return_pp": -30.342
         },
         "accumulate": {
-          "final_eur": 1300.37,
-          "return_pct": 30.037,
+          "final_eur": 1337.38,
+          "return_pct": 33.738,
           "max_drawdown_pct": -26.689,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 27.872,
+          "benchmark_return_pct": 31.978,
           "benchmark_max_drawdown_pct": -26.689,
-          "excess_return_pp": 2.164
+          "excess_return_pp": 1.761
         }
       }
     },
     "IBCF.DE": {
       "isin_unverified": "IE00B3ZW0K18",
       "currency": "EUR",
-      "train_end": "2023-11-21",
-      "test_start": "2023-11-22",
+      "train_end": "2023-11-22",
+      "test_start": "2023-11-23",
       "train": {
         "swing": {
           "final_eur": 994.47,
@@ -74,19 +74,19 @@
           "max_drawdown_pct": -5.0,
           "trade_count": 48,
           "invested_eur": 6000.0,
-          "benchmark_return_pct": 89.44,
+          "benchmark_return_pct": 90.51,
           "benchmark_max_drawdown_pct": -35.055,
-          "excess_return_pp": -89.994
+          "excess_return_pp": -91.064
         },
         "accumulate": {
-          "final_eur": 1835.58,
-          "return_pct": 83.558,
+          "final_eur": 1845.95,
+          "return_pct": 84.595,
           "max_drawdown_pct": -35.055,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 89.44,
+          "benchmark_return_pct": 90.51,
           "benchmark_max_drawdown_pct": -35.055,
-          "excess_return_pp": -5.882
+          "excess_return_pp": -5.915
         }
       },
       "test": {
@@ -96,47 +96,47 @@
           "max_drawdown_pct": -3.193,
           "trade_count": 10,
           "invested_eur": 1250.0,
-          "benchmark_return_pct": 48.258,
+          "benchmark_return_pct": 53.372,
           "benchmark_max_drawdown_pct": -18.338,
-          "excess_return_pp": -46.104
+          "excess_return_pp": -51.218
         },
         "accumulate": {
-          "final_eur": 1403.24,
-          "return_pct": 40.324,
+          "final_eur": 1452.59,
+          "return_pct": 45.259,
           "max_drawdown_pct": -18.338,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 48.258,
+          "benchmark_return_pct": 53.372,
           "benchmark_max_drawdown_pct": -18.338,
-          "excess_return_pp": -7.934
+          "excess_return_pp": -8.113
         }
       }
     },
     "EUNL.DE": {
       "isin_unverified": "IE00B4L5Y983",
       "currency": "EUR",
-      "train_end": "2023-11-21",
-      "test_start": "2023-11-22",
+      "train_end": "2023-11-22",
+      "test_start": "2023-11-23",
       "train": {
         "swing": {
-          "final_eur": 1043.92,
-          "return_pct": 4.392,
+          "final_eur": 1046.11,
+          "return_pct": 4.611,
           "max_drawdown_pct": -2.978,
-          "trade_count": 31,
+          "trade_count": 32,
           "invested_eur": 4000.0,
-          "benchmark_return_pct": 91.118,
+          "benchmark_return_pct": 92.738,
           "benchmark_max_drawdown_pct": -33.632,
-          "excess_return_pp": -86.726
+          "excess_return_pp": -88.126
         },
         "accumulate": {
-          "final_eur": 1844.6,
-          "return_pct": 84.46,
+          "final_eur": 1860.23,
+          "return_pct": 86.023,
           "max_drawdown_pct": -33.632,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 91.118,
+          "benchmark_return_pct": 92.738,
           "benchmark_max_drawdown_pct": -33.632,
-          "excess_return_pp": -6.658
+          "excess_return_pp": -6.714
         }
       },
       "test": {
@@ -146,17 +146,17 @@
           "max_drawdown_pct": -3.478,
           "trade_count": 6,
           "invested_eur": 750.0,
-          "benchmark_return_pct": 54.216,
+          "benchmark_return_pct": 58.823,
           "benchmark_max_drawdown_pct": -21.726,
-          "excess_return_pp": -53.805
+          "excess_return_pp": -58.412
         },
         "accumulate": {
-          "final_eur": 1460.72,
-          "return_pct": 46.072,
+          "final_eur": 1506.78,
+          "return_pct": 50.678,
           "max_drawdown_pct": -21.726,
           "trade_count": 4,
           "invested_eur": 1000.0,
-          "benchmark_return_pct": 54.216,
+          "benchmark_return_pct": 58.823,
           "benchmark_max_drawdown_pct": -21.726,
           "excess_return_pp": -8.144
         }

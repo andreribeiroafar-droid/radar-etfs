@@ -2,7 +2,7 @@
   "schema": 1,
   "engine": "forex-autopilot-4.2",
   "started_on": "2026-10-30",
-  "last_processed": "2026-11-26",
+  "last_processed": "2026-11-27",
   "cash": 748.67260054,
   "trade_count": 2,
   "pending": null,
@@ -12,7 +12,7 @@
     "entry_rate": 174.623001,
     "foreign_units": 43590.266624624994,
     "eur_debited": 250.0,
-    "bars_held": 2
+    "bars_held": 3
   },
   "closed": [
     {
@@ -76,7 +76,7 @@
       "details": "eurjpy: 250 EUR virtuais; fecho 174.623001; custo entrada 0,15%"
     }
   ],
-  "market_date": "2026-11-26",
+  "market_date": "2026-11-27",
   "status": "active",
-  "last_attempt_utc": "2026-11-26T23:02:37+00:00"
+  "last_attempt_utc": "2026-11-27T23:02:01+00:00"
 }
